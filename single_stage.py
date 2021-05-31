@@ -161,7 +161,7 @@ class stage1:
         p = float(os.environ.get("P"))
 
         # Solve for ka
-        ka = HAPropsSI("conductivity", "T", self.tbar, "P_w", self.pbar, "P", p)
+        ka = HAPropsSI("k", "T", self.tbar, "P_w", self.pbar, "P", p)
 
         # Solve for tb
         self.tb = -(self.qcond * ((self.b - self.tm) / ka + self.tm/self.km) - self.tf)
