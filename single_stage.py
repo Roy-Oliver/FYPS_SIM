@@ -100,8 +100,8 @@ class stage1:
 
         # Solve for pbar
 
-        pf = PropsSI("P", "T", self.tf, "Q", 0, "Water")
-        pb = PropsSI("P", "T", self.tb, "Q", 0, "Water")
+        pf = PropsSI("P", "T", self.tf, "Q", 1, "Water")
+        pb = PropsSI("P", "T", self.tb, "Q", 1, "Water")
         self.pbar = (pf + pb) / 2
 
         # Solve for tbar
@@ -148,8 +148,8 @@ class stage1:
 
         # Solve for pbar
 
-        pf = PropsSI("P", "T", self.tf, "Q", 0, "Water")
-        pb = PropsSI("P", "T", self.tb, "Q", 0, "Water")
+        pf = PropsSI("P", "T", self.tf, "Q", 1, "Water")
+        pb = PropsSI("P", "T", self.tb, "Q", 1, "Water")
         self.pbar = (pf + pb) / 2
 
         # Solve for tbar
