@@ -185,8 +185,7 @@ class stage1:
     def phi(self):
 
         # Guess Tb
-        # self.tb = (self.tinf + self.tf) / 2
-        self.tb = 293.15
+        self.tb = self.tinf
 
         # Get delta
         load_dotenv()
