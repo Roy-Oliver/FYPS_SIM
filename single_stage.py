@@ -39,7 +39,6 @@ class stage1:
         delta = float(os.environ.get("delta"))
 
         while True:
-
             # Compute for tfilmside
             tfilmside = (self.tw + self.tinf) / 2
 
@@ -63,7 +62,7 @@ class stage1:
             cl = 0.671 / ((1 + (0.492 / pr) ** (9/16)) ** (4/9))
 
             # Update Numthin
-            numthin = cl * pr * ((gr * pr) ** (1/4))
+            numthin = cl * ((gr * pr) ** (1/4))
 
             # Update Numlam
             numlam = 2.0 / math.log(1 + 2 / numthin)
@@ -186,14 +185,14 @@ class stage1:
     def phi(self):
 
         # Guess Tb
-        self.tb = (self.tinf + self.tf) / 2
+        # self.tb = (self.tinf + self.tf) / 2
+        self.tb = 293.15
 
         # Get delta
         load_dotenv()
         delta = float(os.environ.get("delta"))
 
         while True:
-
             # Initial value of tb
             tb_1 = self.tb
 
