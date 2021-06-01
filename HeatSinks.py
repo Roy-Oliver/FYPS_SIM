@@ -140,7 +140,7 @@ class PinFin:
         # Solve for hbs
         fac3 = self.a / self.n - self.d  # Helper variable
         fac4 = 2 * fac3 + 2 * self.a
-        hbs = kas * 2.5 / (fac3 * math.log(1 + 2.5 / numthins1) / fac4)
+        hbs = kas * 2.5 / (fac3 * self.a * math.log(1 + 2.5 / numthins1) / fac4)
         return hbs
 
     def _hf(self):
