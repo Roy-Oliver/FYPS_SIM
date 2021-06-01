@@ -4,8 +4,9 @@ import os
 import math
 
 
-class stage1:
-    '''A class that models the first stage of the desalinator'''
+class Stage1:
+    """A class that models the first stage of the desalinator"""
+
     def __init__(self, qsun, tinf, tb, t, a, b, k, epsilon, dwa298):
         # Initializes the stage object
 
@@ -22,7 +23,7 @@ class stage1:
     def __psi(self):
         # Solves for q''side
 
-        #Solves for tbar
+        # Solves for tbar
         self.tbar = (self.tf + self.tb) / 2
 
         # Guess tw as tbar
@@ -52,19 +53,20 @@ class stage1:
             gr = (self.b ** 3) * (rho ** 2) * g * beta * (self.tw - self.tinf) / (myu ** 2)
 
             # Update Numturb
-            numturb = (0.13 * (pr ** 0.22) / ((1 + 0.61 * (pr ** 0.22)) ** 0.42)) * (((gr * pr) ** (1/3))/(1 + 1400000000 / gr))
+            numturb = (0.13 * (pr ** 0.22) / ((1 + 0.61 * (pr ** 0.22)) ** 0.42)) * (
+                        ((gr * pr) ** (1 / 3)) / (1 + 1400000000 / gr))
 
             # Update cl
-            cl = 0.671 / ((1 + (0.492 / pr) ** (9/16)) ** (4/9))
+            cl = 0.671 / ((1 + (0.492 / pr) ** (9 / 16)) ** (4 / 9))
 
             # Update Numthin
-            numthin = cl * ((gr * pr) ** (1/4))
+            numthin = cl * ((gr * pr) ** (1 / 4))
 
             # Update Numlam
             numlam = 2.0 / math.log(1 + 2 / numthin)
 
             # Update haside
-            haside = (kaside / self.b) * (((numlam ** 6) + (numturb ** 6)) ** (1/6))
+            haside = (kaside / self.b) * (((numlam ** 6) + (numturb ** 6)) ** (1 / 6))
 
             # Update q ''side
             qside = (self.tbar - self.tinf) / (1 / haside + self.t / self.k)
@@ -92,7 +94,6 @@ class stage1:
         # Output qrad
         self.qrad = self.epsilon * sigma * ((self.tf ** 4) - (self.tinf ** 4))
 
-
     def __Jevap(self):
 
         # Get P
@@ -104,7 +105,7 @@ class stage1:
         self.hvf = PropsSI("HMOLAR", "T", self.tf, "Q", 1, "Water")
 
         # Return jevap
-        self.jevap = (self.qsun - self.qrad - self.qcond)/((self.hvf - hlf)) # mol/sm2
+        self.jevap = (self.qsun - self.qrad - self.qcond) / (self.hvf - hlf)  # mol/sm2
 
     def __qcond(self):
 
@@ -132,14 +133,13 @@ class stage1:
         self.tbar = (self.tf + self.tb) / 2
 
         # Solve for cb
-        cb = PropsSI("DMOLAR", "T", self.tb, "Q", 1, "Water") # mol/m3
+        cb = PropsSI("DMOLAR", "T", self.tb, "Q", 1, "Water")  # mol/m3
 
         # Solve for dwa
         dwa = self.dwa298 * ((self.tbar / 298.15) ** 1.75)
 
-
         # Return Tf
-        cf = self.jevap * self.b / dwa + cb # mol/m3
+        cf = self.jevap * self.b / dwa + cb  # mol/m3
         self.tf = PropsSI("T", "DMOLAR", cf, "Q", 1, "Water")
 
     def __jside(self):
@@ -148,17 +148,20 @@ class stage1:
         self.tbar = (self.tf + self.tb) / 2
 
         # Solve for hvside and hlb
-        hvside = PropsSI("HMOLAR", "T", self.tbar, "Q", 1, "Water") # J/mol
-        self.hlb = PropsSI("HMOLAR", "T", self.tb, "Q", 0, "Water") # J/mol
+        hvside = PropsSI("HMOLAR", "T", self.tbar, "Q", 1, "Water")  # J/mol
+        self.hlb = PropsSI("HMOLAR", "T", self.tb, "Q", 0, "Water")  # J/mol
 
-        self.jside = self.qside / (hvside - self.hlb) # mol/sm2
+        self.jside = self.qside / (hvside - self.hlb)  # mol/sm2
 
     def __qout(self):
 
-        self.qout = ((self.a ** 2) * (self.qcond + self.hvf * self.jevap) - 4 * self.a * self.b * self.qside - self.hlb * ((self.a ** 2) * self.jevap - 4 * self.a * self.b * self.jside)) / (self.a ** 2)
+        self.qout = ((self.a ** 2) * (
+                    self.qcond + self.hvf * self.jevap) - 4 * self.a * self.b * self.qside - self.hlb * (
+                                 (self.a ** 2) * self.jevap - 4 * self.a * self.b * self.jside)) / (self.a ** 2)
 
     def __ntot(self):
-        self.ntot = ((self.a ** 2) * (self.qout - self.qcond) + 4 * self.a * self.b * self.qside) / ((self.a ** 2) * self.qsun)
+        self.ntot = ((self.a ** 2) * (self.qout - self.qcond) + 4 * self.a * self.b * self.qside) / (
+                    (self.a ** 2) * self.qsun)
 
     def phi(self):
 
@@ -189,7 +192,3 @@ class stage1:
         self.__jside()
         self.__qout()
         self.__ntot()
-
-
-
-
