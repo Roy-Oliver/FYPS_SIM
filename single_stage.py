@@ -83,7 +83,7 @@ class stage1:
         self.qside = qside
 
     def __qrad(self):
-        # Computes for Tf
+        # Computes for q''rad
 
         # Get sigma
         load_dotenv()
@@ -95,34 +95,24 @@ class stage1:
 
     def __Jevap(self):
 
-        # Solve for tbar
-        self.tbar = (self.tf + self.tb) / 2
-
-        # Solve for cf and cb
-        cb = PropsSI("DMASS", "T", self.tb, "Q", 1, "Water")
-        cf = PropsSI("DMASS", "T", self.tf, "Q", 1, "Water")
-
-        # Solve for dwa
-        dwa = self.dwa298 * ((self.tbar / 298.15) ** 1.75)
-
-
-        # Return Tf
-        self.jevap = dwa * (cf - cb) / self.b
-
-
-    def __qcond(self):
         # Get P
         load_dotenv()
         p = float(os.environ.get("P"))
+        MH2O = float(os.environ.get("MH2O"))
 
         # get hlf and hvf
-        hlf = PropsSI("HMASS", "T", self.tinf, "P", p, "Water")
-        self.hvf = PropsSI("HMASS", "T", self.tf, "Q", 1, "Water")
+        hlf = PropsSI("HMOLAR", "T", self.tinf, "P", p, "Water")
+        self.hvf = PropsSI("HMOLAR", "T", self.tf, "Q", 1, "Water")
 
         # Return qrad
-        self.qcond = self.qsun + hlf * self.jevap - self.qrad - self.hvf * self.jevap
+        self.jevap = (self.qsun - self.qrad - self.qcond)/((self.hvf - hlf))
 
-    def __tf(self):
+    def __qcond(self):
+
+        # Solve for pbar
+        pf = PropsSI("P", "T", self.tf, "Q", 1, "Water")
+        pb = PropsSI("P", "T", self.tb, "Q", 1, "Water")
+        self.pbar = (pf + pb) / 2
 
         # Solve for tbar
         self.tbar = (self.tf + self.tb) / 2
@@ -132,18 +122,35 @@ class stage1:
         p = float(os.environ.get("P"))
 
         # Solve for ka
-        ka = PropsSI("CONDUCTIVITY", "T", self.tbar, "P", p, "Water")
+        ka = HAPropsSI("K", "T", self.tbar, "P", p, "P_w", self.pbar)
 
         # Solve for qcond
-        self.tf = self.qcond * self.b / ka + self.tb
+        self.qcond = ka * (self.tf - self.tb) / self.b
+
+    def __tf(self):
+
+        # Solve for tbar
+        self.tbar = (self.tf + self.tb) / 2
+
+        # Solve for cf and cb
+        cb = PropsSI("DMOLAR", "T", self.tb, "Q", 1, "Water")
+
+        # Solve for dwa
+        dwa = self.dwa298 * ((self.tbar / 298.15) ** 1.75)
+
+
+        # Return Tf
+        cf = self.jevap * self.b / dwa + cb
+        self.tf = PropsSI("T", "DMOLAR", cf, "Q", 1, "Water")
 
     def __jside(self):
+
         # Solve for tbar
         self.tbar = (self.tf + self.tb) / 2
 
         # Solve for hvside and hlb
-        hvside = PropsSI("HMASS", "T", self.tbar, "Q", 1, "Water")
-        self.hlb = PropsSI("HMASS", "T", self.tb, "Q", 0, "Water")
+        hvside = PropsSI("HMOLAR", "T", self.tbar, "Q", 1, "Water")
+        self.hlb = PropsSI("HMOLAR", "T", self.tb, "Q", 0, "Water")
 
         self.jside = self.qside / (hvside - self.hlb)
 
@@ -169,8 +176,8 @@ class stage1:
 
             # Update values
             self.__qrad()
-            self.__Jevap()
             self.__qcond()
+            self.__Jevap()
             self.__tf()
 
             if abs(tf_1 - self.tf) > delta:
