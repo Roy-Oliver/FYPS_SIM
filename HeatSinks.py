@@ -48,7 +48,7 @@ class RectangularFin:
 
     def __init__(self, a, tf, l, n, tbn, tinf, ks):
         self.a = a
-        self.tf = tf # thickness of fin
+        self.tf = tf  # thickness of fin
         self.l = l
         self.n = n
         self.tbn = tbn
@@ -78,7 +78,7 @@ class RectangularFin:
         el = g * betas * (self.tbn - self.tinf) * (z ** 4) / ((myus / rhos) * (kas * self.l / (rhos * cps)))
 
         # Solve for hf
-        hf = (kas / z) * ((((576 / (el ** 2)) + 2.873 / (el ** 1/2))) ** (-1/2))
+        hf = (kas / z) * (((576 / (el ** 2)) + 2.873 / (el ** 1/2)) ** (-1/2))
 
         # Solve for prs
         prs = cps * myus / kas
@@ -130,15 +130,15 @@ class PinFin:
         prs = cps * myus / kas
 
         # Solve for grs1
-        fac1 = ((self.a / self.n - self.d) * self.a / (2 * (self.a / self.n - self.d) + 2 * self.a)) ** 3 # Helper variable
+        fac1 = ((self.a / self.n - self.d) * self.a / (2 * (self.a / self.n - self.d) + 2 * self.a)) ** 3  # Helper variable
         grs1 = fac1 * (rhos ** 2) * g * betas * (self.tbn - self.tinf) / (myus ** 2)
 
         # Solve for numthins1
-        fac2 = (1 + (1.9 / prs) ** (9/10)) ** (2/9) # Helper variable
+        fac2 = (1 + (1.9 / prs) ** (9/10)) ** (2/9)  # Helper variable
         numthins1 = 0.527 * ((grs1 * prs) ** (1/5)) / fac2
 
         # Solve for hbs
-        fac3 = self.a / self.n - self.d # Helper variable
+        fac3 = self.a / self.n - self.d  # Helper variable
         fac4 = 2 * fac3 + 2 * self.a
         hbs = kas * 2.5 / (fac3 * math.log(1 + 2.5 / numthins1) / fac4)
         return hbs
@@ -173,7 +173,7 @@ class PinFin:
         numthins2 = cl * ((grs2 * prs) ** (1/4))
 
         # Solve for zeta
-        zeta = (1.8 * self.l / self.d) / (numthins2)
+        zeta = (1.8 * self.l / self.d) / numthins2
 
         # Solve for numlams
         numlams = zeta * 2 / (math.log(1 + zeta) * math.log(1 + 2 / numthins2))
@@ -198,14 +198,6 @@ class PinFin:
 
         # Solve for qs
         fac1 = math.tanh(((4 * hf / (self.ks * self.d)) ** (1/2)) * self.l)
-        fac2 = (4 * hf / (self.ks * self.d)) **(1/2)
-        fac3 = (self.a ** 2) - (self.n ** 2) * (pi) * (self.d ** 2) / 4
+        fac2 = (4 * hf / (self.ks * self.d)) ** (1/2)
+        fac3 = (self.a ** 2) - (self.n ** 2) * pi * (self.d ** 2) / 4
         self.qs = (self.n ** 2) * (fac1 / fac2) * (pi * self.d * hf) * (self.tbn - self.tinf) + hbs * (self.tbn - self.tinf) * fac3
-
-
-
-
-
-
-
-
