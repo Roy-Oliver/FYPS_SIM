@@ -153,7 +153,7 @@ class Stagei:
         self.ntot = ((self.a ** 2) * (self.qout - self.qcond) + 4 * self.a * self.b * self.qside) / (
                     (self.a ** 2) * self.qin)
 
-    def phi(self):
+    def solve(self):
 
         # Guess Tf
         self.tf = (self.tb - self.tinf) + self.tb
@@ -214,7 +214,7 @@ class Stage1(Stagei):
         # Return jevap
         self.jevap = (self.qin - self.qrad - self.qcond) / (self.hvf - hlf)  # mol/sm2
 
-    def phi(self):
+    def solve(self):
 
         # Guess Tf
         self.tf = (self.tb - self.tinf) + self.tb
