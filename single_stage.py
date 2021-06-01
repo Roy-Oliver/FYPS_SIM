@@ -4,13 +4,13 @@ import os
 import math
 
 
-class Stage1:
-    """A class that models the first stage of the desalinator"""
+class Stagei:
+    """A class that models the ith stage of the desalinator"""
 
-    def __init__(self, qsun, tinf, tb, t, a, b, k, epsilon, dwa298):
+    def __init__(self, qin, tinf, tb, t, a, b, k, epsilon, dwa298):
         # Initializes the stage object
 
-        self.qsun = qsun
+        self.qin = qin
         self.tinf = tinf
         self.tb = tb
         self.t = t
@@ -20,7 +20,7 @@ class Stage1:
         self.epsilon = epsilon
         self.dwa298 = dwa298
 
-    def __psi(self):
+    def _psi(self):
         # Solves for q''side
 
         # Solves for tbar
@@ -84,17 +84,7 @@ class Stage1:
         # output qside
         self.qside = qside
 
-    def __qrad(self):
-        # Computes for q''rad
-
-        # Get sigma
-        load_dotenv()
-        sigma = float(os.environ.get("sigma"))
-
-        # Output qrad
-        self.qrad = self.epsilon * sigma * ((self.tf ** 4) - (self.tinf ** 4))
-
-    def __Jevap(self):
+    def _Jevap(self):
 
         # Get P
         load_dotenv()
@@ -105,9 +95,9 @@ class Stage1:
         self.hvf = PropsSI("HMOLAR", "T", self.tf, "Q", 1, "Water")
 
         # Return jevap
-        self.jevap = (self.qsun - self.qrad - self.qcond) / (self.hvf - hlf)  # mol/sm2
+        self.jevap = (self.qin - self.qcond) / (self.hvf - hlf)  # mol/sm2
 
-    def __qcond(self):
+    def _qcond(self):
 
         # Solve for pbar
         pf = PropsSI("P", "T", self.tf, "Q", 1, "Water")
@@ -127,7 +117,7 @@ class Stage1:
         # Solve for qcond
         self.qcond = ka * (self.tf - self.tb) / self.b
 
-    def __tf(self):
+    def _tf(self):
 
         # Solve for tbar
         self.tbar = (self.tf + self.tb) / 2
@@ -142,7 +132,7 @@ class Stage1:
         cf = self.jevap * self.b / dwa + cb  # mol/m3
         self.tf = PropsSI("T", "DMOLAR", cf, "Q", 1, "Water")
 
-    def __jside(self):
+    def _jside(self):
 
         # Solve for tbar
         self.tbar = (self.tf + self.tb) / 2
@@ -153,15 +143,15 @@ class Stage1:
 
         self.jside = self.qside / (hvside - self.hlb)  # mol/sm2
 
-    def __qout(self):
+    def _qout(self):
 
         self.qout = ((self.a ** 2) * (
                     self.qcond + self.hvf * self.jevap) - 4 * self.a * self.b * self.qside - self.hlb * (
                                  (self.a ** 2) * self.jevap - 4 * self.a * self.b * self.jside)) / (self.a ** 2)
 
-    def __ntot(self):
+    def _ntot(self):
         self.ntot = ((self.a ** 2) * (self.qout - self.qcond) + 4 * self.a * self.b * self.qside) / (
-                    (self.a ** 2) * self.qsun)
+                    (self.a ** 2) * self.qin)
 
     def phi(self):
 
@@ -177,10 +167,9 @@ class Stage1:
             tf_1 = self.tf
 
             # Update values
-            self.__qrad()
-            self.__qcond()
-            self.__Jevap()
-            self.__tf()
+            self._qcond()
+            self._Jevap()
+            self._tf()
 
             if abs(tf_1 - self.tf) > delta:
                 continue
@@ -188,7 +177,69 @@ class Stage1:
                 break
 
         # Update Values
-        self.__psi()
-        self.__jside()
-        self.__qout()
-        self.__ntot()
+        self._psi()
+        self._jside()
+        self._qout()
+        self._ntot()
+
+
+
+
+class Stage1(Stagei):
+    """A class that models the first stage of the desalinator"""
+
+    def __init__(self, qsun, tinf, tb, t, a, b, k, epsilon, dwa298):
+        """Initialize attributes of parent class"""
+        super().__init__(qsun, tinf, tb, t, a, b, k, epsilon, dwa298)
+
+    def _qrad(self):
+        # Computes for q''rad
+
+        # Get sigma
+        load_dotenv()
+        sigma = float(os.environ.get("sigma"))
+
+        # Output qrad
+        self.qrad = self.epsilon * sigma * ((self.tf ** 4) - (self.tinf ** 4))
+
+    def _Jevap(self):
+        # Get P
+        load_dotenv()
+        p = float(os.environ.get("P"))
+
+        # get hlf and hvf
+        hlf = PropsSI("HMOLAR", "T", self.tinf, "P", p, "Water")
+        self.hvf = PropsSI("HMOLAR", "T", self.tf, "Q", 1, "Water")
+
+        # Return jevap
+        self.jevap = (self.qin - self.qrad - self.qcond) / (self.hvf - hlf)  # mol/sm2
+
+    def phi(self):
+
+        # Guess Tf
+        self.tf = (self.tb - self.tinf) + self.tb
+
+        # Get delta
+        load_dotenv()
+        delta = float(os.environ.get("delta"))
+
+        while True:
+            # Initial value of tb
+            tf_1 = self.tf
+
+            # Update values
+            self._qrad()
+            self._qcond()
+            self._Jevap()
+            self._tf()
+
+            if abs(tf_1 - self.tf) > delta:
+                continue
+            else:
+                break
+
+        # Update Values
+        self._psi()
+        self._jside()
+        self._qout()
+        self._ntot()
