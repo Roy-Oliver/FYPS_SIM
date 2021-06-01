@@ -89,7 +89,7 @@ class stage1:
         load_dotenv()
         sigma = float(os.environ.get("sigma"))
 
-        # Output Tf
+        # Output qrad
         self.qrad = self.epsilon * sigma * ((self.tf ** 4) - (self.tinf ** 4))
 
 
@@ -98,14 +98,13 @@ class stage1:
         # Get P
         load_dotenv()
         p = float(os.environ.get("P"))
-        MH2O = float(os.environ.get("MH2O"))
 
         # get hlf and hvf
         hlf = PropsSI("HMOLAR", "T", self.tinf, "P", p, "Water")
         self.hvf = PropsSI("HMOLAR", "T", self.tf, "Q", 1, "Water")
 
-        # Return qrad
-        self.jevap = (self.qsun - self.qrad - self.qcond)/((self.hvf - hlf))
+        # Return jevap
+        self.jevap = (self.qsun - self.qrad - self.qcond)/((self.hvf - hlf)) # mol/sm2
 
     def __qcond(self):
 
@@ -132,15 +131,15 @@ class stage1:
         # Solve for tbar
         self.tbar = (self.tf + self.tb) / 2
 
-        # Solve for cf and cb
-        cb = PropsSI("DMOLAR", "T", self.tb, "Q", 1, "Water")
+        # Solve for cb
+        cb = PropsSI("DMOLAR", "T", self.tb, "Q", 1, "Water") # mol/m3
 
         # Solve for dwa
         dwa = self.dwa298 * ((self.tbar / 298.15) ** 1.75)
 
 
         # Return Tf
-        cf = self.jevap * self.b / dwa + cb
+        cf = self.jevap * self.b / dwa + cb # mol/m3
         self.tf = PropsSI("T", "DMOLAR", cf, "Q", 1, "Water")
 
     def __jside(self):
@@ -149,10 +148,10 @@ class stage1:
         self.tbar = (self.tf + self.tb) / 2
 
         # Solve for hvside and hlb
-        hvside = PropsSI("HMOLAR", "T", self.tbar, "Q", 1, "Water")
-        self.hlb = PropsSI("HMOLAR", "T", self.tb, "Q", 0, "Water")
+        hvside = PropsSI("HMOLAR", "T", self.tbar, "Q", 1, "Water") # J/mol
+        self.hlb = PropsSI("HMOLAR", "T", self.tb, "Q", 0, "Water") # J/mol
 
-        self.jside = self.qside / (hvside - self.hlb)
+        self.jside = self.qside / (hvside - self.hlb) # mol/sm2
 
     def __qout(self):
 
@@ -185,6 +184,7 @@ class stage1:
             else:
                 break
 
+        # Update Values
         self.__psi()
         self.__jside()
         self.__qout()
