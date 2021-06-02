@@ -120,7 +120,8 @@ class Distiller:
         self._solvestages()
 
         # Return error
-        return (self.stages[-1].qout - self.heatsink.qs / (self.a ** 2))
+        err = self.stages[-1].qout - (self.heatsink.qs / (self.a ** 2))
+        return err
 
 
 

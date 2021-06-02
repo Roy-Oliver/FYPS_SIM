@@ -30,7 +30,7 @@ epsilon = 0.03
 dwa298 = 0.000026
 
 # Number of stages
-N = 10
+N = 5
 
 # Type of heat sink. 1 for no heat sink, 2 for rectangular, 3 for pin
 htsnk = 1
