@@ -33,7 +33,7 @@ dwa298 = 0.000026
 N = 5
 
 # Type of heat sink. 1 for no heat sink, 2 for rectangular, 3 for pin
-htsnk = 1
+htsnk = 3
 
 # Parameters for "no heat sink". [--blank--]
 param1 = []
@@ -45,7 +45,15 @@ param2 = [0.01, 0.02, 3, 0.05]
 param3 = [0.01, 0.1, 4, 0.05]
 
 if __name__ == "__main__":
-    desalinator_setup = Distiller(qsun, tinf, t, a, b, k, epsilon, dwa298, N, htsnk, param1)
+
+    if htsnk == 1:
+        desalinator_setup = Distiller(qsun, tinf, t, a, b, k, epsilon, dwa298, N, htsnk, param1)
+    elif htsnk == 2:
+        desalinator_setup = Distiller(qsun, tinf, t, a, b, k, epsilon, dwa298, N, htsnk, param2)
+    else:
+        desalinator_setup = Distiller(qsun, tinf, t, a, b, k, epsilon, dwa298, N, htsnk, param2)
+
+
 
     # Import delta
     load_dotenv()
