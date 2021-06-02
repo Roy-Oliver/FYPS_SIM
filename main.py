@@ -30,7 +30,7 @@ epsilon = 0.03
 dwa298 = 0.000026
 
 # Number of stages
-N = 2
+N = 10
 
 # Type of heat sink. 1 for no heat sink, 2 for rectangular, 3 for pin
 htsnk = 1
@@ -52,5 +52,26 @@ if __name__ == "__main__":
     delta = float(os.environ.get("delta"))
 
     # Solve the setup
-    tf = scipy.optimize.newton(desalinator_setup.solve, 350, rtol=delta)
-    print(tf)
+    scipy.optimize.newton(desalinator_setup.solve, 350, rtol=delta)
+
+    # Print results
+    print("_________________________________________")
+
+    for stage_num, stage in enumerate(desalinator_setup.stages):
+        print(f"Stage {stage_num + 1}\n")
+
+        print(f"Tf = {stage.tf}")
+        print(f"Tb = {stage.tb}\n")
+
+        print(f"q''in = {stage.qin}")
+        print(f"q''out = {stage.qout}")
+        print(f"q''cond = {stage.qcond}")
+        print(f"q''side = {stage.qside}")
+        if stage_num == 0:
+            print(f"q''rad = {stage.qrad}")
+
+        print(f"\nJ''evap = {stage.jevap}")
+        print(f"J''side = {stage.jside}\n")
+
+        print(f"ntot = {stage.ntot}")
+        print("_________________________________________")

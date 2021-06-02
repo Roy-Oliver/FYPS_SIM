@@ -94,13 +94,11 @@ class Distiller:
         for stage_num, stage in enumerate(self.stages):
             if stage_num == len(self.stages) - 1:
                 # Solve last stage
-                print(f"Solving stage {stage_num}")
                 stage.solve()
 
 
             else:
                 # Solve stages before the last stage
-                print(f"Solving stage {stage_num}")
                 stage.solve()
 
                 # Transfer qout -> qin and tb -> tf
