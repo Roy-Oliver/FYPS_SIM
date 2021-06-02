@@ -163,6 +163,7 @@ class Stagei:
         # solve for cf:
         cf = self.jevap * self.b / dwa + cb  # mol/m3
 
+
         # Solve for Tf
         try:
             self.tf = PropsSI("T", "DMOLAR", cf, "Q", 1, "Water")
@@ -173,9 +174,16 @@ class Stagei:
             delta = float(os.environ.get("delta"))
             R = float(os.environ.get("R"))
 
+            # The upper value for solution to exist for tf is 59259 mol/m3.
+            if cf > 59259:
+                print("No solution for Tf. Exiting")
+                exit()
+
             # Iteratively solve for Tf based on Ideal gas law and Antoine Equation
             self.tf = self.tb # Guess an initial value of tf
+
             while True:
+
                 tf_1 = self.tf # store an initial value of tf
 
                 # COmpute for vapor pressure via antoine equation
@@ -188,6 +196,7 @@ class Stagei:
                     continue
                 else:
                     break
+
 
     def _jside(self):
 
