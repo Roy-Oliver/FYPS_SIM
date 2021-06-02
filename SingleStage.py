@@ -7,12 +7,12 @@ import math
 class Stagei:
     """A class that models the ith stage of the desalinator"""
 
-    def __init__(self, qin, tinf, tb, t, a, b, k, epsilon, dwa298):
+    def __init__(self, qin, tinf, tf, t, a, b, k, epsilon, dwa298):
         # Initializes the stage object
 
         self.qin = qin
         self.tinf = tinf
-        self.tb = tb
+        self.tf = tf
         self.t = t
         self.a = a
         self.b = b
@@ -143,56 +143,56 @@ class Stagei:
         # Solve for qcond
         self.qcond = ka * (self.tf - self.tb) / self.b
 
-    def _tf(self):
+    def _tb(self):
 
         # Solve for tbar
         self.tbar = (self.tf + self.tb) / 2
 
         try:
-            # Solve for cb
-            cb = PropsSI("DMOLAR", "T", self.tb, "Q", 1, "Water")  # mol/m3
+            # Solve for cf
+            cf = PropsSI("DMOLAR", "T", self.tf, "Q", 1, "Water")  # mol/m3
         except ValueError:
             print("Warning: Value Error for cb. Switching to Antoine Equation and Ideal Gas Equation")
             # Solve for vapor pressure
-            pb = (10 ** (4.6543 - 1435.264 / (self.tb - 64.848))) * 100000 # pascals
-            cb = pb / (8.314 * self.tb) # ideal gas law
+            pf = (10 ** (4.6543 - 1435.264 / (self.tf - 64.848))) * 100000 # pascals
+            cf = pf / (8.314 * self.tf) # ideal gas law
 
         # Solve for dwa
         dwa = self.dwa298 * ((self.tbar / 298.15) ** 1.75)
 
-        # solve for cf:
-        cf = self.jevap * self.b / dwa + cb  # mol/m3
+        # solve for cb:
+        cb = -(self.jevap * self.b / dwa - cf)  # mol/m3
 
 
-        # Solve for Tf
+        # Solve for Tb
         try:
-            self.tf = PropsSI("T", "DMOLAR", cf, "Q", 1, "Water")
+            self.tb = PropsSI("T", "DMOLAR", cb, "Q", 1, "Water")
         except ValueError:
-            print("Warning: Value Error for tf. Switching to Antoine Equation and Ideal Gas Law")
+            print("Warning: Value Error for tb. Switching to Antoine Equation and Ideal Gas Law")
             # Get tolerance
             load_dotenv()
             delta = float(os.environ.get("delta"))
             R = float(os.environ.get("R"))
 
             # The upper value for solution to exist for tf is 59259 mol/m3.
-            if cf > 59259:
-                print("No solution for Tf. Exiting")
+            if cb > 59259:
+                print("No solution for Tb. Exiting")
                 exit()
 
-            # Iteratively solve for Tf based on Ideal gas law and Antoine Equation
-            self.tf = self.tb # Guess an initial value of tf
+            # Iteratively solve for Tb based on Ideal gas law and Antoine Equation
+            self.tb = self.tf # Guess an initial value of tb
 
             while True:
 
-                tf_1 = self.tf # store an initial value of tf
+                tb_1 = self.tb # store an initial value of tb
 
                 # COmpute for vapor pressure via antoine equation
-                pf = (10 ** (4.6543 - 1435.264 / (self.tf - 64.848))) * 100000
+                pb = (10 ** (4.6543 - 1435.264 / (self.tb - 64.848))) * 100000
 
-                # Compute for Tf via ideal gas equation
-                self.tf = pf / (R * cf)
+                # Compute for Tb via ideal gas equation
+                self.tb = pb / (R * cb)
 
-                if abs(self.tf - tf_1) > delta:
+                if abs(self.tb - tb_1) > delta:
                     continue
                 else:
                     break
@@ -234,8 +234,8 @@ class Stagei:
 
     def solve(self):
 
-        # Guess Tf
-        self.tf = (self.tb - self.tinf) + self.tb
+        # Guess Tb
+        self.tb = self.tinf
 
         # Get delta
         load_dotenv()
@@ -243,14 +243,14 @@ class Stagei:
 
         while True:
             # Initial value of tb
-            tf_1 = self.tf
+            tb_1 = self.tb
 
             # Update values
             self._qcond()
             self._Jevap()
-            self._tf()
+            self._tb()
 
-            if abs(tf_1 - self.tf) > delta:
+            if abs(tb_1 - self.tb) > delta:
                 continue
             else:
                 break
@@ -260,8 +260,6 @@ class Stagei:
         self._jside()
         self._qout()
         self._ntot()
-
-
 
 
 class Stage1(Stagei):
@@ -301,7 +299,7 @@ class Stage1(Stagei):
     def solve(self):
 
         # Guess Tf
-        self.tf = (self.tb - self.tinf) + self.tb
+        self.tb = self.tinf
 
         # Get delta
         load_dotenv()
@@ -309,15 +307,15 @@ class Stage1(Stagei):
 
         while True:
             # Initial value of tb
-            tf_1 = self.tf
+            tb_1 = self.tb
 
             # Update values
             self._qrad()
             self._qcond()
             self._Jevap()
-            self._tf()
+            self._tb()
 
-            if abs(tf_1 - self.tf) > delta:
+            if abs(tb_1 - self.tb) > delta:
                 continue
             else:
                 break
