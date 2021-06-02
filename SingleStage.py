@@ -104,6 +104,7 @@ class Stagei:
             # Return jevap
             self.jevap = (self.qin - self.qcond) / (self.hvf - hlf)  # mol/sm2
         except ValueError:
+            print("Warning: Value Error for hlf and/or hvf. Switching to default heat of vaporization")
             self.jevap = (self.qin - self.qcond) / 43988
 
     def _qcond(self):
@@ -112,12 +113,14 @@ class Stagei:
         try:
             pf = PropsSI("P", "T", self.tf, "Q", 1, "Water")
         except ValueError:
+            print("Warning: Value Error for pf. Switching to Antoine Equation")
             pf = (10 ** (4.6543 - 1435.264 / (self.tf - 64.848))) * 100000 # Vapor pressure in Pascal
 
         # Solve for pb
         try:
             pb = PropsSI("P", "T", self.tb, "Q", 1, "Water")
         except ValueError:
+            print("Warning: Value Error for pb. Switching to Antoine Equation")
             pb = (10 ** (4.6543 - 1435.264 / (self.tb - 64.848))) * 100000  # Vapor pressure in Pascal
 
         # Solve for pbar
@@ -134,6 +137,7 @@ class Stagei:
         try:
             ka = HAPropsSI("K", "T", self.tbar, "P", p, "P_w", self.pbar)
         except ValueError:
+            print("Warning: Value Error for ka. Switching to ka = 0.026")
             ka = 0.026
 
         # Solve for qcond
@@ -148,6 +152,7 @@ class Stagei:
             # Solve for cb
             cb = PropsSI("DMOLAR", "T", self.tb, "Q", 1, "Water")  # mol/m3
         except ValueError:
+            print("Warning: Value Error for cb. Switching to Antoine Equation and Ideal Gas Equation")
             # Solve for vapor pressure
             pb = (10 ** (4.6543 - 1435.264 / (self.tb - 64.848))) * 100000 # pascals
             cb = pb / (8.314 * self.tb) # ideal gas law
@@ -162,6 +167,7 @@ class Stagei:
         try:
             self.tf = PropsSI("T", "DMOLAR", cf, "Q", 1, "Water")
         except ValueError:
+            print("Warning: Value Error for tf. Switching to Antoine Equation and Ideal Gas Law")
             # Get tolerance
             load_dotenv()
             delta = float(os.environ.get("delta"))
@@ -196,6 +202,7 @@ class Stagei:
             self.jside = self.qside / (hvside - self.hlb)  # mol/sm2
 
         except ValueError:
+            print("Warning: Value Error for hvside and/hlb. Switching to default heat of vaporization")
             # Solve for jside
             self.jside = self.qside / 43988
 
@@ -204,6 +211,7 @@ class Stagei:
         try:
             self.qout = ((self.a ** 2) * (self.qcond + self.hvf * self.jevap) - 4 * self.a * self.b * self.qside - self.hlb * ((self.a ** 2) * self.jevap - 4 * self.a * self.b * self.jside)) / (self.a ** 2)
         except AttributeError:
+            print("Warning: hvf and/or hlb were not found. Switching to default heat of vaporization")
             # If there was an attribute error in previous code ie. self.hvf or self.hlb not defined,
             # Set hlb = 0 and
             # Define hvf such that its value is hlb + enthalpy of vaporization
@@ -278,6 +286,7 @@ class Stage1(Stagei):
             self.jevap = (self.qin - self.qrad - self.qcond) / (self.hvf - hlf)  # mol/sm2
 
         except ValueError:
+            print("Warning: hvf and/or hlf were not found. Switching to default heat of vaporization")
             self.jevap = (self.qin - self.qrad - self.qcond) / 43988
 
     def solve(self):
