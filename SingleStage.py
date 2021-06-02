@@ -35,54 +35,60 @@ class Stagei:
         g = float(os.environ.get("g"))
         delta = float(os.environ.get("delta"))
 
-        while True:
-            # Compute for tfilmside
-            tfilmside = (self.tw + self.tinf) / 2
+        try:
+            while True:
+                # Compute for tfilmside
+                tfilmside = (self.tw + self.tinf) / 2
 
-            # Compute for air properties
-            myu = PropsSI("V", "T", tfilmside, "P", p, "Air")
-            rho = PropsSI("DMASS", "T", tfilmside, "P", p, "Air")
-            cp = PropsSI("CPMASS", "T", tfilmside, "P", p, "Air")
-            kaside = PropsSI("CONDUCTIVITY", "T", tfilmside, "P", p, "Air")
-            beta = PropsSI("ISOBARIC_EXPANSION_COEFFICIENT", "T", tfilmside, "P", p, "Air")
+                # Compute for air properties
+                myu = PropsSI("V", "T", tfilmside, "P", p, "Air")
+                rho = PropsSI("DMASS", "T", tfilmside, "P", p, "Air")
+                cp = PropsSI("CPMASS", "T", tfilmside, "P", p, "Air")
+                kaside = PropsSI("CONDUCTIVITY", "T", tfilmside, "P", p, "Air")
+                beta = PropsSI("ISOBARIC_EXPANSION_COEFFICIENT", "T", tfilmside, "P", p, "Air")
 
-            # Update Pr
-            pr = cp * myu / kaside
+                # Update Pr
+                pr = cp * myu / kaside
 
-            # Update Gr
-            gr = (self.b ** 3) * (rho ** 2) * g * beta * (self.tw - self.tinf) / (myu ** 2)
+                # Update Gr
+                gr = (self.b ** 3) * (rho ** 2) * g * beta * (self.tw - self.tinf) / (myu ** 2)
 
-            # Update Numturb
-            numturb = (0.13 * (pr ** 0.22) / ((1 + 0.61 * (pr ** 0.22)) ** 0.42)) * (
-                        ((gr * pr) ** (1 / 3)) / (1 + 1400000000 / gr))
+                # Update Numturb
+                numturb = (0.13 * (pr ** 0.22) / ((1 + 0.61 * (pr ** 0.22)) ** 0.42)) * (
+                            ((gr * pr) ** (1 / 3)) / (1 + 1400000000 / gr))
 
-            # Update cl
-            cl = 0.671 / ((1 + (0.492 / pr) ** (9 / 16)) ** (4 / 9))
+                # Update cl
+                cl = 0.671 / ((1 + (0.492 / pr) ** (9 / 16)) ** (4 / 9))
 
-            # Update Numthin
-            numthin = cl * ((gr * pr) ** (1 / 4))
+                # Update Numthin
+                numthin = cl * ((gr * pr) ** (1 / 4))
 
-            # Update Numlam
-            numlam = 2.0 / math.log(1 + 2 / numthin)
+                # Update Numlam
+                numlam = 2.0 / math.log(1 + 2 / numthin)
 
-            # Update haside
-            haside = (kaside / self.b) * (((numlam ** 6) + (numturb ** 6)) ** (1 / 6))
+                # Update haside
+                haside = (kaside / self.b) * (((numlam ** 6) + (numturb ** 6)) ** (1 / 6))
 
-            # Update q ''side
-            qside = (self.tbar - self.tinf) / (1 / haside + self.t / self.k)
+                # Update q ''side
+                qside = (self.tbar - self.tinf) / (1 / haside + self.t / self.k)
 
-            # Update tw
-            tw_2 = -(qside * (self.t / self.k) - self.tbar)
+                # Update tw
+                tw_2 = -(qside * (self.t / self.k) - self.tbar)
 
-            # Decision
-            if abs(tw_2 - self.tw) > delta:
-                self.tw = tw_2
-                continue
-            else:
-                break
+                # Decision
+                if abs(tw_2 - self.tw) > delta:
+                    self.tw = tw_2
+                    continue
+                else:
+                    break
 
-        # output qside
-        self.qside = qside
+            # output qside
+            self.qside = qside
+        except:
+            print("Warning: Tbar < Tinf")
+            self.tw = 0
+            self.qside = (self.tbar - self.tinf) / (1 / 2.487 + self.t / self.k) # haside = 2.487
+
 
     def _Jevap(self):
 
