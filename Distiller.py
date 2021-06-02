@@ -73,7 +73,7 @@ class Distiller:
     def __init__(self, qsun, tinf, t, a, b, k, epsilon, dwa298, N, htsnk, param):
         self.qsun = qsun
         self.tinf = tinf
-        self.tf = 370
+        self.tf = 200 # A dummy
         self.t = t
         self.a = a
         self.b = b
@@ -113,24 +113,16 @@ class Distiller:
         # Solve the heat sink
         self.heatsink.solve()
 
-    def solve(self):
+    def solve(self, tf_guess):
 
-        # Import delta
-        load_dotenv()
-        delta = float(os.environ.get("delta"))
+        # Input Guess to Initial Stage
+        self.stages[0].tf = tf_guess
 
-        while True:
+        # Solve the Stages
+        self._solvestages()
 
-            # Solve all stages
-            self._solvestages()
-
-            # Check if qoutn = qs
-
-            if abs(self.stages[-1].qout - self.heatsink.qs / (self.a ** 2)) > delta:
-                self.stages[0].tf = self.stages[0].tf * (self.stages[-1].qout / self.heatsink.qs)
-                continue
-            else:
-                break
+        # Return error
+        return (self.stages[-1].qout - self.heatsink.qs / (self.a ** 2))
 
 
 

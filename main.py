@@ -1,4 +1,7 @@
 from Distiller import Distiller
+import scipy.optimize
+from dotenv import load_dotenv
+import os
 
 # Input Distiller Variables
 
@@ -9,7 +12,7 @@ qsun = 1000
 tinf = 298.15
 
 # Insulation thickness in m
-t = 0
+t = 0.011
 
 # Stage length in m
 a = 0.12
@@ -18,7 +21,7 @@ a = 0.12
 b = 0.00215
 
 # Insulation conductivity in W/mk
-k = 0.05
+k = 0.25
 
 # Solar absorber emissivity
 epsilon = 0.03
@@ -27,7 +30,7 @@ epsilon = 0.03
 dwa298 = 0.000026
 
 # Number of stages
-N = 1
+N = 2
 
 # Type of heat sink. 1 for no heat sink, 2 for rectangular, 3 for pin
 htsnk = 1
@@ -43,4 +46,11 @@ param3 = [0.01, 0.1, 4, 0.05]
 
 if __name__ == "__main__":
     desalinator_setup = Distiller(qsun, tinf, t, a, b, k, epsilon, dwa298, N, htsnk, param1)
-    desalinator_setup.solve()
+
+    # Import delta
+    load_dotenv()
+    delta = float(os.environ.get("delta"))
+
+    # Solve the setup
+    tf = scipy.optimize.newton(desalinator_setup.solve, 350, rtol=delta)
+    print(tf)
