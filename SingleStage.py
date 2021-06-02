@@ -90,18 +90,31 @@ class Stagei:
         load_dotenv()
         p = float(os.environ.get("P"))
 
-        # get hlf and hvf
-        hlf = PropsSI("HMOLAR", "T", self.tinf, "P", p, "Water")
-        self.hvf = PropsSI("HMOLAR", "T", self.tf, "Q", 1, "Water")
+        try:
+            # get hlf and hvf
+            hlf = PropsSI("HMOLAR", "T", self.tinf, "P", p, "Water")
+            self.hvf = PropsSI("HMOLAR", "T", self.tf, "Q", 1, "Water")
 
-        # Return jevap
-        self.jevap = (self.qin - self.qcond) / (self.hvf - hlf)  # mol/sm2
+            # Return jevap
+            self.jevap = (self.qin - self.qcond) / (self.hvf - hlf)  # mol/sm2
+        except ValueError:
+            self.jevap = (self.qin - self.qcond) / 43988
 
     def _qcond(self):
 
+        # Solve for pf
+        try:
+            pf = PropsSI("P", "T", self.tf, "Q", 1, "Water")
+        except ValueError:
+            pf = (10 ** (4.6543 - 1435.264 / (self.tf - 64.848))) * 100000 # Vapor pressure in Pascal
+
+        # Solve for pb
+        try:
+            pb = PropsSI("P", "T", self.tb, "Q", 1, "Water")
+        except ValueError:
+            pb = (10 ** (4.6543 - 1435.264 / (self.tb - 64.848))) * 100000  # Vapor pressure in Pascal
+
         # Solve for pbar
-        pf = PropsSI("P", "T", self.tf, "Q", 1, "Water")
-        pb = PropsSI("P", "T", self.tb, "Q", 1, "Water")
         self.pbar = (pf + pb) / 2
 
         # Solve for tbar
@@ -112,7 +125,10 @@ class Stagei:
         p = float(os.environ.get("P"))
 
         # Solve for ka
-        ka = HAPropsSI("K", "T", self.tbar, "P", p, "P_w", self.pbar)
+        try:
+            ka = HAPropsSI("K", "T", self.tbar, "P", p, "P_w", self.pbar)
+        except ValueError:
+            ka = 0.026
 
         # Solve for qcond
         self.qcond = ka * (self.tf - self.tb) / self.b
@@ -122,32 +138,72 @@ class Stagei:
         # Solve for tbar
         self.tbar = (self.tf + self.tb) / 2
 
-        # Solve for cb
-        cb = PropsSI("DMOLAR", "T", self.tb, "Q", 1, "Water")  # mol/m3
+        try:
+            # Solve for cb
+            cb = PropsSI("DMOLAR", "T", self.tb, "Q", 1, "Water")  # mol/m3
+        except ValueError:
+            # Solve for vapor pressure
+            pb = (10 ** (4.6543 - 1435.264 / (self.tb - 64.848))) * 100000 # pascals
+            cb = pb / (8.314 * self.tb) # ideal gas law
 
         # Solve for dwa
         dwa = self.dwa298 * ((self.tbar / 298.15) ** 1.75)
 
-        # Return Tf
+        # solve for cf:
         cf = self.jevap * self.b / dwa + cb  # mol/m3
-        self.tf = PropsSI("T", "DMOLAR", cf, "Q", 1, "Water")
+
+        # Solve for Tf
+        try:
+            self.tf = PropsSI("T", "DMOLAR", cf, "Q", 1, "Water")
+        except ValueError:
+            # Get tolerance
+            load_dotenv()
+            delta = float(os.environ.get("delta"))
+            R = float(os.environ.get("R"))
+
+            # Iteratively solve for Tf based on Ideal gas law and Antoine Equation
+            self.tf = self.tb # Guess an initial value of tf
+            while True:
+                tf_1 = self.tf # store an initial value of tf
+
+                # COmpute for vapor pressure via antoine equation
+                pf = (10 ** (4.6543 - 1435.264 / (self.tf - 64.848))) * 100000
+
+                # Compute for Tf via ideal gas equation
+                self.tf = pf / (R * cf)
+
+                if abs(self.tf - tf_1) > delta:
+                    continue
+                else:
+                    break
 
     def _jside(self):
 
         # Solve for tbar
         self.tbar = (self.tf + self.tb) / 2
 
-        # Solve for hvside and hlb
-        hvside = PropsSI("HMOLAR", "T", self.tbar, "Q", 1, "Water")  # J/mol
-        self.hlb = PropsSI("HMOLAR", "T", self.tb, "Q", 0, "Water")  # J/mol
+        try:
+            # Solve for hvside and hlb
+            hvside = PropsSI("HMOLAR", "T", self.tbar, "Q", 1, "Water")  # J/mol
+            self.hlb = PropsSI("HMOLAR", "T", self.tb, "Q", 0, "Water")  # J/mol
 
-        self.jside = self.qside / (hvside - self.hlb)  # mol/sm2
+            self.jside = self.qside / (hvside - self.hlb)  # mol/sm2
+
+        except ValueError:
+            # Solve for jside
+            self.jside = self.qside / 43988
 
     def _qout(self):
 
-        self.qout = ((self.a ** 2) * (
-                    self.qcond + self.hvf * self.jevap) - 4 * self.a * self.b * self.qside - self.hlb * (
-                                 (self.a ** 2) * self.jevap - 4 * self.a * self.b * self.jside)) / (self.a ** 2)
+        try:
+            self.qout = ((self.a ** 2) * (self.qcond + self.hvf * self.jevap) - 4 * self.a * self.b * self.qside - self.hlb * ((self.a ** 2) * self.jevap - 4 * self.a * self.b * self.jside)) / (self.a ** 2)
+        except AttributeError:
+            # If there was an attribute error in previous code ie. self.hvf or self.hlb not defined,
+            # Set hlb = 0 and
+            # Define hvf such that its value is hlb + enthalpy of vaporization
+            self.hlb = 0
+            self.hvf = self.hlb + 43988
+            self.qout = ((self.a ** 2) * (self.qcond + self.hvf * self.jevap) - 4 * self.a * self.b * self.qside - self.hlb * ((self.a ** 2) * self.jevap - 4 * self.a * self.b * self.jside)) / (self.a ** 2)
 
     def _ntot(self):
         self.ntot = ((self.a ** 2) * (self.qout - self.qcond) + 4 * self.a * self.b * self.qside) / (
@@ -207,12 +263,16 @@ class Stage1(Stagei):
         load_dotenv()
         p = float(os.environ.get("P"))
 
-        # get hlf and hvf
-        hlf = PropsSI("HMOLAR", "T", self.tinf, "P", p, "Water")
-        self.hvf = PropsSI("HMOLAR", "T", self.tf, "Q", 1, "Water")
+        try:
+            # get hlf and hvf
+            hlf = PropsSI("HMOLAR", "T", self.tinf, "P", p, "Water")
+            self.hvf = PropsSI("HMOLAR", "T", self.tf, "Q", 1, "Water")
 
-        # Return jevap
-        self.jevap = (self.qin - self.qrad - self.qcond) / (self.hvf - hlf)  # mol/sm2
+            # Return jevap
+            self.jevap = (self.qin - self.qrad - self.qcond) / (self.hvf - hlf)  # mol/sm2
+
+        except ValueError:
+            self.jevap = (self.qin - self.qrad - self.qcond) / 43988
 
     def solve(self):
 
