@@ -95,6 +95,7 @@ class Stagei:
         # Get P
         load_dotenv()
         p = float(os.environ.get("P"))
+        hvap = float(os.environ.get("hvap"))
 
         try:
             # get hlf and hvf
@@ -105,7 +106,7 @@ class Stagei:
             self.jevap = (self.qin - self.qcond) / (self.hvf - self.hlf)  # mol/sm2
         except ValueError:
             print("Warning: Value Error for hlf and/or hvf. Switching to default heat of vaporization")
-            self.jevap = (self.qin - self.qcond) / 43988
+            self.jevap = (self.qin - self.qcond) / hvap
 
     def _qcond(self):
 
@@ -201,6 +202,10 @@ class Stagei:
 
     def _qout(self):
 
+        # Load hvap
+        load_dotenv()
+        hvap = float(os.environ.get("hvap"))
+
         try:
             self.hlb = PropsSI("HMOLAR", "T", self.tb, "Q", 0, "Water")  # J/mol
             self.qout = ((self.a ** 2) * (self.qcond + self.hvf * self.jevap - self.hlb * self.jevap) - 4 * self.a * self.b * self.qside) / (self.a ** 2)
@@ -210,7 +215,7 @@ class Stagei:
             # Set hlb = 0 and
             # Define hvf such that its value is hlb + enthalpy of vaporization
             self.hlb = 0
-            self.hvf = self.hlb + 43988
+            self.hvf = self.hlb + hvap
             self.qout = ((self.a ** 2) * (self.qcond + self.hvf * self.jevap - self.hlb * self.jevap) - 4 * self.a * self.b * self.qside) / (self.a ** 2)
 
     def _qevap(self):
@@ -265,9 +270,10 @@ class Stage1(Stagei):
         self.qrad = self.epsilon * sigma * ((self.tf ** 4) - (self.tinf ** 4))
 
     def _Jevap(self):
-        # Get P
+        # Get P and hvap
         load_dotenv()
         p = float(os.environ.get("P"))
+        hvap = float(os.environ.get("hvap"))
 
         try:
             # get hlf and hvf
@@ -279,7 +285,7 @@ class Stage1(Stagei):
 
         except ValueError:
             print("Warning: hvf and/or hlf were not found. Switching to default heat of vaporization")
-            self.jevap = (self.qin - self.qrad - self.qcond) / 43988
+            self.jevap = (self.qin - self.qrad - self.qcond) / hvap
 
     def solve(self):
 
