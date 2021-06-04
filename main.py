@@ -50,8 +50,11 @@ if __name__ == "__main__":
         desalinator_setup = Distiller(qsun, tinf, t, a, b, k, epsilon, dwa298, N, htsnk, param1)
     elif htsnk == 2:
         desalinator_setup = Distiller(qsun, tinf, t, a, b, k, epsilon, dwa298, N, htsnk, param2)
-    else:
+    elif htsnk == 3:
         desalinator_setup = Distiller(qsun, tinf, t, a, b, k, epsilon, dwa298, N, htsnk, param2)
+    else:
+        print("Invalid heat sink")
+        exit()
 
 
 
