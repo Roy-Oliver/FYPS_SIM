@@ -155,9 +155,14 @@ class Stagei:
             cf = PropsSI("DMOLAR", "T", self.tf, "Q", 1, "Water")  # mol/m3
         except ValueError:
             print("Warning: Value Error for cb. Switching to Antoine Equation and Ideal Gas Equation")
+
+            # Load value of R
+            load_dotenv()
+            R = float(os.environ.get("R"))
+
             # Solve for vapor pressure
             pf = (10 ** (4.6543 - 1435.264 / (self.tf - 64.848))) * 100000 # pascals
-            cf = pf / (8.314 * self.tf) # ideal gas law
+            cf = pf / (R * self.tf) # ideal gas law
 
         # Solve for dwa
         dwa = self.dwa298 * ((self.tbar / 298.15) ** 1.75)
