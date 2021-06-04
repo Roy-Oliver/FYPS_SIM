@@ -65,6 +65,9 @@ if __name__ == "__main__":
     # Print results
     print("_________________________________________")
 
+
+    # Loop through results, and sum up qevap from each stage.
+    # The sum of the qevap are used to compute for the total efficiency
     qevap_tot = 0
     for stage_num, stage in enumerate(desalinator_setup.stages):
 

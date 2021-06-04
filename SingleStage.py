@@ -199,23 +199,6 @@ class Stagei:
                     break
 
 
-    #def _jside(self):
-
-        # Solve for tbar
-    #    self.tbar = (self.tf + self.tb) / 2
-
-        #try:
-        #    # Solve for hvside and hlb
-        #    hvside = PropsSI("HMOLAR", "T", self.tbar, "Q", 1, "Water")  # J/mol
-        #    self.hlb = PropsSI("HMOLAR", "T", self.tb, "Q", 0, "Water")  # J/mol
-
-         #   self.jside = self.qside / (hvside - self.hlb)  # mol/sm2
-
-        #except ValueError:
-        #    print("Warning: Value Error for hvside and/hlb. Switching to default heat of vaporization")
-        #    # Solve for jside
-        #    self.jside = self.qside / 43988
-
     def _qout(self):
 
         try:
@@ -231,6 +214,8 @@ class Stagei:
             self.qout = ((self.a ** 2) * (self.qcond + self.hvf * self.jevap - self.hlb * self.jevap) - 4 * self.a * self.b * self.qside) / (self.a ** 2)
 
     def _qevap(self):
+
+        # Solves for qevap using energy balance
         self.qevap = ((self.a ** 2) * (self.qout - self.qcond) + 4 * self.a * self.b * self.qside) / (self.a ** 2)
 
     def solve(self):
@@ -258,7 +243,6 @@ class Stagei:
 
         # Update Values
         self._psi()
-        #self._jside()
         self._qout()
         self._qevap()
 
@@ -323,6 +307,5 @@ class Stage1(Stagei):
 
         # Update Values
         self._psi()
-        #self._jside()
         self._qout()
         self._qevap()
