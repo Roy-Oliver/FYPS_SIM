@@ -92,7 +92,7 @@ class Stagei:
 
     def _Jevap(self):
 
-        # Get P
+        # Get P and hvap
         load_dotenv()
         p = float(os.environ.get("P"))
         hvap = float(os.environ.get("hvap"))
@@ -188,12 +188,13 @@ class Stagei:
 
                 tb_1 = self.tb # store an initial value of tb
 
-                # COmpute for vapor pressure via antoine equation
-                pb = (10 ** (4.6543 - 1435.264 / (self.tb - 64.848))) * 100000
+                # COmpute for back wall vapor pressure via ideal gas equation
+                pb = (cb * R * self.tb) / (10 ** 5) # vapor pressure in bar
 
-                # Compute for Tb via ideal gas equation
-                self.tb = pb / (R * cb)
+                # Compute for new back wall temperature using antoine equation
+                self.tb = 1435.264 / (4.6543 - math.log(pb, 10)) + 64.848
 
+                # check for convergence
                 if abs(self.tb - tb_1) > delta:
                     continue
                 else:
