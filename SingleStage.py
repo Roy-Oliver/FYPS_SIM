@@ -7,7 +7,7 @@ import math
 class Stagei:
     """A class that models the ith stage of the desalinator"""
 
-    def __init__(self, qin, tinf, tf, t, a, b, k, epsilon, dwa298):
+    def __init__(self, qin, tinf, tf, t, a, b, k, epsilon, dwa298, c):
         # Initializes the stage object
 
         self.qin = qin
@@ -19,6 +19,7 @@ class Stagei:
         self.k = k
         self.epsilon = epsilon
         self.dwa298 = dwa298
+        self.c = c
 
     def _psi(self):
         # Solves for q''side
@@ -214,7 +215,7 @@ class Stagei:
 
         try:
             self.hlb = PropsSI("HMOLAR", "T", self.tb, "Q", 0, "Water")  # J/mol
-            self.qout = ((self.a ** 2) * (self.qcond + self.hvf * self.jevap - self.hlb * self.jevap) - 4 * self.a * self.b * self.qside) / (self.a ** 2)
+            self.qout = ((self.a * self.c) * (self.qcond + self.hvf * self.jevap - self.hlb * self.jevap) - 2 * self.a * self.b * self.qside - 2 * self.c * self.b * self.qside) / (self.a * self.c)
         except AttributeError:
             print("Warning: hvf and/or hlb were not found. Switching to default heat of vaporization")
             # If there was an attribute error in previous code ie. self.hvf or self.hlb not defined,
@@ -222,12 +223,12 @@ class Stagei:
             # Define hvf such that its value is hlb + enthalpy of vaporization
             self.hlb = 0
             self.hvf = self.hlb + hvap
-            self.qout = ((self.a ** 2) * (self.qcond + self.hvf * self.jevap - self.hlb * self.jevap) - 4 * self.a * self.b * self.qside) / (self.a ** 2)
+            self.qout = ((self.a * self.c) * (self.qcond + self.hvf * self.jevap - self.hlb * self.jevap) - 2 * self.a * self.b * self.qside - 2 * self.c * self.b * self.qside) / (self.a * self.c)
 
     def _qevap(self):
 
         # Solves for qevap using energy balance
-        self.qevap = ((self.a ** 2) * (self.qout - self.qcond) + 4 * self.a * self.b * self.qside) / (self.a ** 2)
+        self.qevap = ((self.a * self.c) * (self.qout - self.qcond) + 2 * self.a * self.b * self.qside + 2 * self.c * self.b * self.qside) / (self.a * self.c)
 
     def solve(self):
 
@@ -261,9 +262,9 @@ class Stagei:
 class Stage1(Stagei):
     """A class that models the first stage of the desalinator"""
 
-    def __init__(self, qsun, tinf, tb, t, a, b, k, epsilon, dwa298):
+    def __init__(self, qsun, tinf, tb, t, a, b, k, epsilon, dwa298, c):
         """Initialize attributes of parent class"""
-        super().__init__(qsun, tinf, tb, t, a, b, k, epsilon, dwa298)
+        super().__init__(qsun, tinf, tb, t, a, b, k, epsilon, dwa298, c)
 
     def _qrad(self):
         # Computes for q''rad

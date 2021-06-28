@@ -14,17 +14,17 @@ class Distiller:
         for stagenum in range(self.N):
             if stagenum == 0:
                 # The stage is the first stage
-                self.stages.append(Stage1(self.qsun, self.tinf, self.tf, self.t, self.a, self.b, self.k, self.epsilon, self.dwa298))
+                self.stages.append(Stage1(self.qsun, self.tinf, self.tf, self.t, self.a, self.b, self.k, self.epsilon, self.dwa298, self.c))
 
             elif stagenum == self.N - 1:
                 # The last stage
-                self.stages.append(Stagei(0, self.tinf, 0, self.t, self.a, self.b, self.k, self.epsilon, self.dwa298))
+                self.stages.append(Stagei(0, self.tinf, 0, self.t, self.a, self.b, self.k, self.epsilon, self.dwa298, self.c))
 
                 # qin and Tb is unknown here
 
             else:
                 # Middle stages
-                self.stages.append(Stagei(0, self.tinf, 0, self.t, self.a, self.b, self.k, self.epsilon, self.dwa298))
+                self.stages.append(Stagei(0, self.tinf, 0, self.t, self.a, self.b, self.k, self.epsilon, self.dwa298, self.c))
 
                 # qin and Tb is unknown here
 
@@ -36,9 +36,10 @@ class Distiller:
             a = self.a
             tbn = 0 # Leave blank
             tinf = self.tinf
+            c = self.c
 
             # Create Object
-            self.heatsink = NoHeatSink(a, tbn, tinf)
+            self.heatsink = NoHeatSink(a, tbn, tinf, c)
 
         elif self.htsnk == 2:
             # Rectangular Fin
@@ -51,9 +52,10 @@ class Distiller:
             tbn = 0 # Leave blank
             tinf = self.tinf
             ks = self.param[3]
+            c = self.c
 
             # Create object
-            self.heatsink = RectangularFin(a, tf, l, n, tbn, tinf, ks)
+            self.heatsink = RectangularFin(a, tf, l, n, tbn, tinf, ks, c)
 
         else:
             # Pin Fin
@@ -66,11 +68,13 @@ class Distiller:
             tbn = 0 # Leave blank
             tinf = self.tinf
             ks = self.param[3]
+            c = self.c
+            m = self.param[4]
 
             # Create Object
-            self.heatsink = PinFin(a, d, l, n, tbn, tinf, ks)
+            self.heatsink = PinFin(a, d, l, n, tbn, tinf, ks, c, m)
 
-    def __init__(self, qsun, tinf, t, a, b, k, epsilon, dwa298, N, htsnk, param):
+    def __init__(self, qsun, tinf, t, a, b, k, epsilon, dwa298, N, htsnk, param, c):
         self.qsun = qsun
         self.tinf = tinf
         self.tf = 200 # A dummy
@@ -83,6 +87,7 @@ class Distiller:
         self.N = N # Number of stages
         self.htsnk = htsnk # Type of Heat Sink
         self.param = param # Heat Sink parameters
+        self.c = c
 
         self._MultiStageAssemble()
         self._HeatSinkAssemble()

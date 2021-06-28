@@ -7,10 +7,11 @@ import math
 class NoHeatSink:
     """Models a Flat Plate (No Heat Sink)"""
 
-    def __init__(self, a, tbn, tinf):
+    def __init__(self, a, tbn, tinf, c):
         self.a = a
         self.tbn = tbn
         self.tinf = tinf
+        self.c = c
 
     def solve(self):
         # Solve for Tfilms
@@ -29,7 +30,7 @@ class NoHeatSink:
         betas = PropsSI("ISOBARIC_EXPANSION_COEFFICIENT", "T", tfilms, "P", p, "Air")
 
         # Solve for Grs
-        grs = (((self.a ** 2) / (4 * self.a)) ** 3) * (rhos ** 2) * g * betas * (self.tbn - self.tinf) / (myus ** 2)
+        grs = (((self.a * self.c) / (2 * self.a + 2 * self.c)) ** 3) * (rhos ** 2) * g * betas * (self.tbn - self.tinf) / (myus ** 2)
 
         # Solve for Prs
         prs = (cps * myus) / kas
@@ -38,15 +39,15 @@ class NoHeatSink:
         numthins = 0.527 * ((grs * prs) ** (1 / 5)) / ((1 + ((1.9 / prs) ** (9 / 10))) ** (2 / 9))
 
         # Solve for has
-        has = kas * 2.5 / ((self.a ** 2) * math.log(1 + 2.5 / numthins) / (4 * self.a))
+        has = kas * 2.5 / ((self.a * self.c) * math.log(1 + 2.5 / numthins) / (2 * self.a + 2* self.c))
 
         # Solve for qs
-        self.qs = has * (self.a ** 2) * (self.tbn - self.tinf)
+        self.qs = has * (self.a * self.c) * (self.tbn - self.tinf)
 
 class RectangularFin:
     """Models a Multiple Rectangular Fin Array Heat Sink"""
 
-    def __init__(self, a, tf, l, n, tbn, tinf, ks):
+    def __init__(self, a, tf, l, n, tbn, tinf, ks, c):
         self.a = a
         self.tf = tf  # thickness of fin
         self.l = l
@@ -54,6 +55,7 @@ class RectangularFin:
         self.tbn = tbn
         self.tinf = tinf
         self.ks = ks
+        self.c = c
 
     def solve(self):
         # Solve for Tfilms
@@ -72,7 +74,7 @@ class RectangularFin:
         betas = PropsSI("ISOBARIC_EXPANSION_COEFFICIENT", "T", tfilms, "P", p, "Air")
 
         # Solve for z
-        z = self.a / self.n - self.tf
+        z = (self.a - self.n * self.tf) / (self.n + 1)
 
         # Solve for El
         el = g * betas * (self.tbn - self.tinf) * (z ** 4) / ((myus / rhos) * (kas * self.l / (rhos * cps)))
@@ -84,24 +86,23 @@ class RectangularFin:
         prs = cps * myus / kas
 
         # Solve for grs
-        grs = (((self.a / self.n - self.tf) * self.a / (2 * (self.a / self.n - self.tf) + 2 * self.a)) ** 3) * (rhos ** 2) * g * betas * (self.tbn - self.tinf) / (myus ** 2)
+        grs = ((z * self.c / (2 * z + 2 * self.c)) ** 3) * (rhos ** 2) * g * betas * (self.tbn - self.tinf) / (myus ** 2)
 
         # Solve for numthins
         numthins = 0.527 * ((grs * prs) ** (1/5)) / ((1 + ((1.9 / prs) ** (9/10))) ** (2/9))
 
         # Solve for hbs
-        antf = (self.a / self.n - self.tf) # Helper variable for (a / n -tf)
-        hbs = kas * 2.5 / ((antf * self.a * math.log(1 + 2.5 / numthins)) / (2 * antf + 2 * self.a))
+        hbs = kas * 2.5 / ((z * self.c * math.log(1 + 2.5 / numthins)) / (2 * z + 2 * self.c))
 
         # Solve for qs
         fac1 = hf * self.ks * self.tf # Helper variable for hf * ks * tf
-        fac2 = hf * self.l / (self.ks * self.tf) # Helper variable for hf * l / ks * tf
-        self.qs = self.n * self.a * (((2 * fac1) ** (1/2)) * (self.tbn - self.tinf) * math.tanh(2 * fac2) + hbs * (self.tbn - self.tinf) * z)
+        fac2 = (2 * hf / (self.ks * self.tf)) ** (1/2) # Helper variable
+        self.qs = self.n * self.c * (((2 * fac1) ** (1/2)) * (self.tbn - self.tinf) * math.tanh(self.l * fac2)) + self.n * self.c * (hbs * (self.tbn - self.tinf) * z)
 
 class PinFin:
     """Models a multiple rectangular pin fin heat sink"""
 
-    def __init__(self, a, d, l, n, tbn, tinf, ks):
+    def __init__(self, a, d, l, n, tbn, tinf, ks, c, m):
         self.a = a
         self.d = d
         self.l = l
@@ -109,6 +110,8 @@ class PinFin:
         self.tbn = tbn
         self.tinf = tinf
         self.ks = ks
+        self.c = c
+        self.m = m
 
     def _hbs(self):
         # Solve for Tfilms
@@ -129,8 +132,11 @@ class PinFin:
         # Solve for prs
         prs = cps * myus / kas
 
+        # Solve for z
+        z = (self.a - self.n * self.d) / (self.n + 1)
+
         # Solve for grs1
-        fac1 = ((self.a / self.n - self.d) * self.a / (2 * (self.a / self.n - self.d) + 2 * self.a)) ** 3  # Helper variable
+        fac1 = (z * self.c / (2 * z + 2 * self.a)) ** 3  # Helper variable
         grs1 = fac1 * (rhos ** 2) * g * betas * (self.tbn - self.tinf) / (myus ** 2)
 
         # Solve for numthins1
@@ -138,9 +144,7 @@ class PinFin:
         numthins1 = 0.527 * ((grs1 * prs) ** (1/5)) / fac2
 
         # Solve for hbs
-        fac3 = self.a / self.n - self.d  # Helper variable
-        fac4 = 2 * fac3 + 2 * self.a
-        hbs = kas * 2.5 / (fac3 * self.a * math.log(1 + 2.5 / numthins1) / fac4)
+        hbs = kas * 2.5 / (z * self.c * math.log(1 + 2.5 / numthins1) / (2 * z + 2 * self.c))
         return hbs
 
     def _hf(self):
@@ -199,5 +203,5 @@ class PinFin:
         # Solve for qs
         fac1 = math.tanh(((4 * hf / (self.ks * self.d)) ** (1/2)) * self.l)
         fac2 = (4 * hf / (self.ks * self.d)) ** (1/2)
-        fac3 = (self.a ** 2) - (self.n ** 2) * pi * (self.d ** 2) / 4
-        self.qs = (self.n ** 2) * (fac1 / fac2) * (pi * self.d * hf) * (self.tbn - self.tinf) + hbs * (self.tbn - self.tinf) * fac3
+        fac3 = (self.a * self.c) - (self.n * self.m) * pi * (self.d ** 2) / 4
+        self.qs = (self.n * self.m) * (fac1 / fac2) * (pi * self.d * hf) * (self.tbn - self.tinf) + hbs * (self.tbn - self.tinf) * fac3
