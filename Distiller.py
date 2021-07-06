@@ -70,9 +70,10 @@ class Distiller:
             ks = self.param[3]
             c = self.c
             m = self.param[4]
+            z = self.param[5]
 
             # Create Object
-            self.heatsink = PinFin(a, d, l, n, tbn, tinf, ks, c, m)
+            self.heatsink = PinFin(a, d, l, n, tbn, tinf, ks, c, m, z)
 
     def __init__(self, qsun, tinf, t, a, b, k, epsilon, dwa298, N, htsnk, param, c):
         self.qsun = qsun

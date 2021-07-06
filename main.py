@@ -18,7 +18,7 @@ t = 0.011
 a = 0.12
 
 # Stage width in m
-c = 0.12
+c = 0.11
 
 # Stage thickness in m
 b = 0.00215
@@ -36,7 +36,7 @@ dwa298 = 0.000026
 N = 10
 
 # Type of heat sink. 1 for no heat sink, 2 for rectangular, 3 for pin
-htsnk = 2
+htsnk = 3
 
 # Parameters for "no heat sink". [--blank--]
 param1 = []
@@ -44,8 +44,8 @@ param1 = []
 # Parameters for "rectangular fin", [tf -> fin thickness(m), L -> fin length (m), n -> number of fins, ks -> conductivity of material (W/mK)]
 param2 = [0.01, 0.01, 3, 0.05]
 
-# Parameters for "pin fin", [d -> fin diameter (m), L -> fin length (m), n -> number of fins on side a, , ks -> conductivity of material, m -> number of fins on side c]
-param3 = [0.01, 0.1, 4, 0.05, 4]
+# Parameters for "pin fin", [d -> fin diameter (m), L -> fin length (m), n -> number of fins on side a, , ks -> conductivity of material, m -> number of fins on side c, z -> fin spacing]
+param3 = [0.01, 0.1, 4, 0.05, 4, 0.02]
 
 if __name__ == "__main__":
 
@@ -54,7 +54,7 @@ if __name__ == "__main__":
     elif htsnk == 2:
         desalinator_setup = Distiller(qsun, tinf, t, a, b, k, epsilon, dwa298, N, htsnk, param2, c)
     elif htsnk == 3:
-        desalinator_setup = Distiller(qsun, tinf, t, a, b, k, epsilon, dwa298, N, htsnk, param2, c)
+        desalinator_setup = Distiller(qsun, tinf, t, a, b, k, epsilon, dwa298, N, htsnk, param3, c)
     else:
         print("Invalid heat sink")
         exit()
@@ -92,7 +92,10 @@ if __name__ == "__main__":
         if stage_num == 0:
             print(f"q''rad = {stage.qrad}")
 
-        print(f"\nJ''evap = {stage.jevap}\n")
+        print(f"\nJ''evap = {stage.jevap}")
+        print(f"Hvf = {stage.hvf}")
+        print(f"Hlf = {stage.hlf}")
+        print(f"Hlb = {stage.hlb}")
 
         print("_________________________________________")
 

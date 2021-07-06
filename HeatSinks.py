@@ -102,7 +102,7 @@ class RectangularFin:
 class PinFin:
     """Models a multiple rectangular pin fin heat sink"""
 
-    def __init__(self, a, d, l, n, tbn, tinf, ks, c, m):
+    def __init__(self, a, d, l, n, tbn, tinf, ks, c, m, z):
         self.a = a
         self.d = d
         self.l = l
@@ -112,6 +112,7 @@ class PinFin:
         self.ks = ks
         self.c = c
         self.m = m
+        self.z = z
 
     def _hbs(self):
         # Solve for Tfilms
@@ -132,8 +133,8 @@ class PinFin:
         # Solve for prs
         prs = cps * myus / kas
 
-        # Solve for z
-        z = (self.a - self.n * self.d) / (self.n + 1)
+        # use Z
+        z = self.z
 
         # Solve for grs1
         fac1 = (z * self.c / (2 * z + 2 * self.a)) ** 3  # Helper variable
