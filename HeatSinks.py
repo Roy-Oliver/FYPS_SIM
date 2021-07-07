@@ -97,27 +97,43 @@ class RectangularFin:
             hbs = kas * 2.5 / ((z * self.c * math.log(1 + 2.5 / numthins)) / (2 * z + 2 * self.c))
 
         except ZeroDivisionError:
+            # Solve for z
+            z = (self.a - self.tf) / 2
+
+            # Solve for hf
             # Update Pr
-            pr = cps * myus / kas
+            prs = cps * myus / kas
 
             # Update Gr
             gr = (self.l ** 3) * g * betas * (self.tbn - self.tinf) / (myus ** 2)
 
             # Update Numturb
-            numturb = (0.13 * (pr ** 0.22) / ((1 + 0.61 * (pr ** 0.81)) ** 0.42)) * (
+            numturb = (0.13 * (pr ** 0.22) / ((1 + 0.61 * (prs ** 0.81)) ** 0.42)) * (
                     ((gr * pr) ** (1 / 3)) / (1 + 1400000000 / gr))
 
             # Update cl
-            cl = 0.671 / ((1 + (0.492 / pr) ** (9 / 16)) ** (4 / 9))
+            cl = 0.671 / ((1 + (0.492 / prs) ** (9 / 16)) ** (4 / 9))
 
             # Update Numthin
-            numthin = cl * ((gr * pr) ** (1 / 4))
+            numthin = cl * ((gr * prs) ** (1 / 4))
 
             # Update Numlam
             numlam = 2.0 / math.log(1 + 2 / numthin)
 
             # Update haside
-            hbs = (kas / self.l) * (((numlam ** 6) + (numturb ** 6)) ** (1 / 6))
+            hf = (kas / self.l) * (((numlam ** 6) + (numturb ** 6)) ** (1 / 6))
+
+            # Solve for hbs
+            # Solve for prs
+
+            # Solve for grs
+            grs = ((z * self.c / (2 * z + 2 * self.c)) ** 3) * (rhos ** 2) * g * betas * (self.tbn - self.tinf) / (myus ** 2)
+
+            # Solve for numthins
+            numthins = 0.527 * ((grs * prs) ** (1/5)) / ((1 + ((1.9 / prs) ** (9/10))) ** (2/9))
+
+            # Solve for hbs
+            hbs = kas * 2.5 / ((z * self.c * math.log(1 + 2.5 / numthins)) / (2 * z + 2 * self.c))
 
 
         # Solve for qs
