@@ -74,7 +74,7 @@ class RectangularFin:
         betas = PropsSI("ISOBARIC_EXPANSION_COEFFICIENT", "T", tfilms, "P", p, "Air")
 
         # Solve for z
-        z = (self.a - self.n * self.tf) / (self.n + 1)
+        z = (self.a - self.n * self.tf) / (self.n - 1)
 
         # Solve for El
         el = g * betas * (self.tbn - self.tinf) * (z ** 4) / ((myus / rhos) * (kas * self.l / (rhos * cps)))
