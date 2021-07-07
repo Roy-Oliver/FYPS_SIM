@@ -88,7 +88,7 @@ class RectangularFin:
             prs = cps * myus / kas
 
             # Solve for grs
-            grs = ((z * self.c / (2 * z + 2 * self.c)) ** 3) * (rhos ** 2) * g * betas * (self.tbn - self.tinf) / (myus ** 2)
+            grs = ((z * self.c / (2 * z + 2 * self.c)) ** 3) * (rhos ** 2) * g * betas * abs(self.tbn - self.tinf) / (myus ** 2)
 
             # Solve for numthins
             numthins = 0.527 * ((grs * prs) ** (1/5)) / ((1 + ((1.9 / prs) ** (9/10))) ** (2/9))
@@ -107,7 +107,7 @@ class RectangularFin:
             prs = cps * myus / kas
 
             # Update Gr
-            gr = (self.l ** 3) * g * betas * (self.tbn - self.tinf) / (myus ** 2)
+            gr = (self.l ** 3) * g * betas * abs(self.tbn - self.tinf) / (myus ** 2)
 
             # Update Numturb
             numturb = (0.13 * (prs ** 0.22) / ((1 + 0.61 * (prs ** 0.81)) ** 0.42)) * (
