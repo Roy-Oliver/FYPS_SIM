@@ -79,7 +79,7 @@ class RectangularFin:
             z = (self.a - self.n * self.tf) / (self.n - 1)
 
             # Solve for El
-            el = g * betas * (self.tbn - self.tinf) * (z ** 4) / ((myus / rhos) * (kas * self.l / (rhos * cps)))
+            el = g * betas * abs(self.tbn - self.tinf) * (z ** 4) / ((myus / rhos) * (kas * self.l / (rhos * cps)))
 
             # Solve for hf
             hf = (kas / z) * (((576 / (el ** 2)) + 2.873 / (el ** (1/2))) ** (-1/2))

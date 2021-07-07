@@ -36,13 +36,13 @@ dwa298 = 0.000026
 N = 10
 
 # Type of heat sink. 1 for no heat sink, 2 for rectangular, 3 for pin
-htsnk = 1
+htsnk = 2
 
 # Parameters for "no heat sink". [--blank--]
 param1 = []
 
 # Parameters for "rectangular fin", [tf -> fin thickness(m), L -> fin length (m), n -> number of fins, ks -> conductivity of material (W/mK)]
-param2 = [0.0296, 0.247, 1, 205]
+param2 = [0.00986666667, 0.09262917809, 8, 205]
 
 # Parameters for "pin fin", [d -> fin diameter (m), L -> fin length (m), n -> number of fins on side a, , ks -> conductivity of material, m -> number of fins on side c, z -> fin spacing]
 param3 = [0.01, 0.6691, 4, 205, 4, 0.01875]
