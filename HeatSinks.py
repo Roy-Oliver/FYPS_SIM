@@ -182,7 +182,7 @@ class PinFin:
 
             # Solve for grs1
             fac1 = (z * self.c / (2 * z + 2 * self.a)) ** 3  # Helper variable
-            grs1 = fac1 * (rhos ** 2) * g * betas * (self.tbn - self.tinf) / (myus ** 2)
+            grs1 = fac1 * (rhos ** 2) * g * betas * abs(self.tbn - self.tinf) / (myus ** 2)
 
             # Solve for numthins1
             fac2 = (1 + (1.9 / prs) ** (9/10)) ** (2/9)  # Helper variable
@@ -227,7 +227,7 @@ class PinFin:
         prs = cps * myus / kas
 
         # Solve for grs2
-        grs2 = (self.l ** 3) * (rhos ** 2) * g * betas * (self.tbn - self.tinf) / (myus ** 2)
+        grs2 = (self.l ** 3) * (rhos ** 2) * g * betas * abs(self.tbn - self.tinf) / (myus ** 2)
 
         # Solve for cl
         fac1 = (1 + (0.492 / prs) ** (9/16)) ** (4/9)
