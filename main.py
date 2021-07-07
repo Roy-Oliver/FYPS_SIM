@@ -12,13 +12,13 @@ qsun = 1000
 tinf = 298.15
 
 # Insulation thickness in m
-t = 0.011
+t = 0.01
 
 # Stage length in m
-a = 0.12
+a = 0.148
 
 # Stage width in m
-c = 0.11
+c = 0.115
 
 # Stage thickness in m
 b = 0.00215
@@ -36,13 +36,13 @@ dwa298 = 0.000026
 N = 10
 
 # Type of heat sink. 1 for no heat sink, 2 for rectangular, 3 for pin
-htsnk = 3
+htsnk = 2
 
 # Parameters for "no heat sink". [--blank--]
 param1 = []
 
 # Parameters for "rectangular fin", [tf -> fin thickness(m), L -> fin length (m), n -> number of fins, ks -> conductivity of material (W/mK)]
-param2 = [0.01, 0.01, 3, 0.05]
+param2 = [0.0296, 0.247, 1, 205]
 
 # Parameters for "pin fin", [d -> fin diameter (m), L -> fin length (m), n -> number of fins on side a, , ks -> conductivity of material, m -> number of fins on side c, z -> fin spacing]
 param3 = [0.01, 0.1, 4, 0.05, 4, 0.02]
