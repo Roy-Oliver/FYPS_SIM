@@ -174,21 +174,36 @@ class PinFin:
 
         # Solve for prs
         prs = cps * myus / kas
+        try:
+            # use Z
+            z = self.z
 
-        # use Z
-        z = self.z
+            # Solve for grs1
+            fac1 = (z * self.c / (2 * z + 2 * self.a)) ** 3  # Helper variable
+            grs1 = fac1 * (rhos ** 2) * g * betas * (self.tbn - self.tinf) / (myus ** 2)
 
-        # Solve for grs1
-        fac1 = (z * self.c / (2 * z + 2 * self.a)) ** 3  # Helper variable
-        grs1 = fac1 * (rhos ** 2) * g * betas * (self.tbn - self.tinf) / (myus ** 2)
+            # Solve for numthins1
+            fac2 = (1 + (1.9 / prs) ** (9/10)) ** (2/9)  # Helper variable
+            numthins1 = 0.527 * ((grs1 * prs) ** (1/5)) / fac2
 
-        # Solve for numthins1
-        fac2 = (1 + (1.9 / prs) ** (9/10)) ** (2/9)  # Helper variable
-        numthins1 = 0.527 * ((grs1 * prs) ** (1/5)) / fac2
+            # Solve for hbs
+            hbs = kas * 2.5 / (z * self.c * math.log(1 + 2.5 / numthins1) / (2 * z + 2 * self.c))
+            return hbs
+        except ZeroDivisionError:
+            # Run when number of fins is equal to one i.e. z = 0
 
-        # Solve for hbs
-        hbs = kas * 2.5 / (z * self.c * math.log(1 + 2.5 / numthins1) / (2 * z + 2 * self.c))
-        return hbs
+            # Set spacing as equal to the length
+            z = self.a
+
+            # Solve for grs
+            grs = ((z * self.c / (2 * z + 2 * self.c)) ** 3) * (rhos ** 2) * g * betas * (self.tbn - self.tinf) / (myus ** 2)
+
+            # Solve for numthins
+            numthins = 0.527 * ((grs * prs) ** (1/5)) / ((1 + ((1.9 / prs) ** (9/10))) ** (2/9))
+
+            # Solve for hbs
+            hbs = kas * 2.5 / ((z * self.c * math.log(1 + 2.5 / numthins)) / (2 * z + 2 * self.c))
+            return hbs
 
     def _hf(self):
         # Solve for Tfilms
