@@ -108,8 +108,8 @@ class RectangularFin:
             gr = (self.l ** 3) * g * betas * (self.tbn - self.tinf) / (myus ** 2)
 
             # Update Numturb
-            numturb = (0.13 * (pr ** 0.22) / ((1 + 0.61 * (prs ** 0.81)) ** 0.42)) * (
-                    ((gr * pr) ** (1 / 3)) / (1 + 1400000000 / gr))
+            numturb = (0.13 * (prs ** 0.22) / ((1 + 0.61 * (prs ** 0.81)) ** 0.42)) * (
+                    ((gr * prs) ** (1 / 3)) / (1 + 1400000000 / gr))
 
             # Update cl
             cl = 0.671 / ((1 + (0.492 / prs) ** (9 / 16)) ** (4 / 9))
