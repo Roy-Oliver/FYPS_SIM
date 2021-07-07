@@ -97,6 +97,8 @@ class RectangularFin:
             hbs = kas * 2.5 / ((z * self.c * math.log(1 + 2.5 / numthins)) / (2 * z + 2 * self.c))
 
         except ZeroDivisionError:
+            # Runs when the number of fins is 1 i.e.  n - 1 = 0
+
             # Solve for z
             z = (self.a - self.tf) / 2
 
