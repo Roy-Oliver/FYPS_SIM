@@ -55,7 +55,7 @@ class Stagei:
                 gr = (self.b ** 3) * (rho ** 2) * g * beta * (self.tw - self.tinf) / (myu ** 2)
 
                 # Update Numturb
-                numturb = (0.13 * (pr ** 0.22) / ((1 + 0.61 * (pr ** 0.22)) ** 0.42)) * (
+                numturb = (0.13 * (pr ** 0.22) / ((1 + 0.61 * (pr ** 0.81)) ** 0.42)) * (
                             ((gr * pr) ** (1 / 3)) / (1 + 1400000000 / gr))
 
                 # Update cl

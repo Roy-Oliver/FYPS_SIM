@@ -58,6 +58,7 @@ class RectangularFin:
         self.c = c
 
     def solve(self):
+
         # Solve for Tfilms
         tfilms = (self.tbn + self.tinf) / 2
 
@@ -73,26 +74,51 @@ class RectangularFin:
         kas = PropsSI("CONDUCTIVITY", "T", tfilms, "P", p, "Air")
         betas = PropsSI("ISOBARIC_EXPANSION_COEFFICIENT", "T", tfilms, "P", p, "Air")
 
-        # Solve for z
-        z = (self.a - self.n * self.tf) / (self.n - 1)
+        try:
+            # Solve for z
+            z = (self.a - self.n * self.tf) / (self.n - 1)
 
-        # Solve for El
-        el = g * betas * (self.tbn - self.tinf) * (z ** 4) / ((myus / rhos) * (kas * self.l / (rhos * cps)))
+            # Solve for El
+            el = g * betas * (self.tbn - self.tinf) * (z ** 4) / ((myus / rhos) * (kas * self.l / (rhos * cps)))
 
-        # Solve for hf
-        hf = (kas / z) * (((576 / (el ** 2)) + 2.873 / (el ** (1/2))) ** (-1/2))
+            # Solve for hf
+            hf = (kas / z) * (((576 / (el ** 2)) + 2.873 / (el ** (1/2))) ** (-1/2))
 
-        # Solve for prs
-        prs = cps * myus / kas
+            # Solve for prs
+            prs = cps * myus / kas
 
-        # Solve for grs
-        grs = ((z * self.c / (2 * z + 2 * self.c)) ** 3) * (rhos ** 2) * g * betas * (self.tbn - self.tinf) / (myus ** 2)
+            # Solve for grs
+            grs = ((z * self.c / (2 * z + 2 * self.c)) ** 3) * (rhos ** 2) * g * betas * (self.tbn - self.tinf) / (myus ** 2)
 
-        # Solve for numthins
-        numthins = 0.527 * ((grs * prs) ** (1/5)) / ((1 + ((1.9 / prs) ** (9/10))) ** (2/9))
+            # Solve for numthins
+            numthins = 0.527 * ((grs * prs) ** (1/5)) / ((1 + ((1.9 / prs) ** (9/10))) ** (2/9))
 
-        # Solve for hbs
-        hbs = kas * 2.5 / ((z * self.c * math.log(1 + 2.5 / numthins)) / (2 * z + 2 * self.c))
+            # Solve for hbs
+            hbs = kas * 2.5 / ((z * self.c * math.log(1 + 2.5 / numthins)) / (2 * z + 2 * self.c))
+
+        except ZeroDivisionError:
+            # Update Pr
+            pr = cps * myus / kas
+
+            # Update Gr
+            gr = (self.l ** 3) * g * betas * (self.tbn - self.tinf) / (myus ** 2)
+
+            # Update Numturb
+            numturb = (0.13 * (pr ** 0.22) / ((1 + 0.61 * (pr ** 0.81)) ** 0.42)) * (
+                    ((gr * pr) ** (1 / 3)) / (1 + 1400000000 / gr))
+
+            # Update cl
+            cl = 0.671 / ((1 + (0.492 / pr) ** (9 / 16)) ** (4 / 9))
+
+            # Update Numthin
+            numthin = cl * ((gr * pr) ** (1 / 4))
+
+            # Update Numlam
+            numlam = 2.0 / math.log(1 + 2 / numthin)
+
+            # Update haside
+            hbs = (kas / self.l) * (((numlam ** 6) + (numturb ** 6)) ** (1 / 6))
+
 
         # Solve for qs
         fac1 = hf * self.ks * self.tf # Helper variable for hf * ks * tf
