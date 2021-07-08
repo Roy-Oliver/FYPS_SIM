@@ -67,10 +67,11 @@ class Distiller:
             n = self.param[2]
             tbn = 0 # Leave blank
             tinf = self.tinf
-            ks = self.param[3]
+            m = self.param[3]
+            z = self.param[4]
+            ks = self.param[5]
             c = self.c
-            m = self.param[4]
-            z = self.param[5]
+
 
             # Create Object
             self.heatsink = PinFin(a, d, l, n, tbn, tinf, ks, c, m, z)
