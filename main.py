@@ -43,10 +43,10 @@ N = 10
 ks = 205
 
 # Parameters for "rectangular fin", [tf -> fin thickness(m), L -> fin length (m), n -> number of fins, ks -> conductivity of material (W/mK)]
-#param2 = [0.00986666667, 0.09262917809, 8, 205]
+
 
 # Parameters for "pin fin", [d -> fin diameter (m), L -> fin length (m), n -> number of fins on side a, m -> number of fins on side c, z -> fin spacing (m), ks -> conductivity of material]
-#param3 = [0.01, 0.6691, 4, 4, 0.01875, 205]
+
 
 def simulate(param):
 
