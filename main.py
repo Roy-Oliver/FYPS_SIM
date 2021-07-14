@@ -39,9 +39,6 @@ htsnk = 2
 # Number of stages
 N = 10
 
-# Conductivity of heat sink material W/mK
-ks = 205
-
 # Parameters for "rectangular fin", [tf -> fin thickness(m), L -> fin length (m), n -> number of fins, ks -> conductivity of material (W/mK)]
 
 
@@ -77,7 +74,7 @@ def simulate(param):
     qevap_tot = 0
     for stage_num, stage in enumerate(desalinator_setup.stages):
         qevap_tot += stage.qevap
-    print(qevap_tot / qsun)
+    print(desalinator_setup.stages[-1].qout, qevap_tot / qsun, )
 
 def main():
     # Open parameters file
@@ -88,9 +85,6 @@ def main():
         for row in csv_reader:
             # Convert data to float
             param = list(map(float, row))
-
-            # Add conductivity to param
-            param.append(ks)
 
             # Simulate
             simulate(param)

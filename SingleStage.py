@@ -86,7 +86,7 @@ class Stagei:
             # output qside
             self.qside = qside
         except:
-            print("Warning: Tbar < Tinf")
+            # print("Warning: Tbar < Tinf")
             self.tw = 0
             self.qside = (self.tbar - self.tinf) / (1 / 2.487 + self.t / self.k) # haside = 2.487
 
@@ -106,7 +106,7 @@ class Stagei:
             # Return jevap
             self.jevap = (self.qin - self.qcond) / (self.hvf - self.hlf)  # mol/sm2
         except ValueError:
-            print("Warning: Value Error for hlf and/or hvf. Switching to default heat of vaporization")
+            # print("Warning: Value Error for hlf and/or hvf. Switching to default heat of vaporization")
             self.jevap = (self.qin - self.qcond) / hvap
 
     def _qcond(self):
@@ -115,14 +115,14 @@ class Stagei:
         try:
             pf = PropsSI("P", "T", self.tf, "Q", 1, "Water")
         except ValueError:
-            print("Warning: Value Error for pf. Switching to Antoine Equation")
+            # print("Warning: Value Error for pf. Switching to Antoine Equation")
             pf = (10 ** (4.6543 - 1435.264 / (self.tf - 64.848))) * 100000 # Vapor pressure in Pascal
 
         # Solve for pb
         try:
             pb = PropsSI("P", "T", self.tb, "Q", 1, "Water")
         except ValueError:
-            print("Warning: Value Error for pb. Switching to Antoine Equation")
+            # print("Warning: Value Error for pb. Switching to Antoine Equation")
             pb = (10 ** (4.6543 - 1435.264 / (self.tb - 64.848))) * 100000  # Vapor pressure in Pascal
 
         # Solve for pbar
@@ -140,7 +140,7 @@ class Stagei:
             ka = HAPropsSI("K", "T", self.tbar, "P", p, "P_w", self.pbar)
 
         except ValueError:
-            print("Warning: Value Error for ka. Switching to ka = 0.027")
+            # print("Warning: Value Error for ka. Switching to ka = 0.027")
             ka = 0.027
 
         # Solve for qcond
@@ -155,7 +155,7 @@ class Stagei:
             # Solve for cf
             cf = PropsSI("DMOLAR", "T", self.tf, "Q", 1, "Water")  # mol/m3
         except ValueError:
-            print("Warning: Value Error for cb. Switching to Antoine Equation and Ideal Gas Equation")
+            # print("Warning: Value Error for cb. Switching to Antoine Equation and Ideal Gas Equation")
 
             # Load value of R
             load_dotenv()
@@ -176,7 +176,7 @@ class Stagei:
         try:
             self.tb = PropsSI("T", "DMOLAR", cb, "Q", 1, "Water")
         except ValueError:
-            print("Warning: Value Error for tb. Switching to Antoine Equation and Ideal Gas Law")
+            # print("Warning: Value Error for tb. Switching to Antoine Equation and Ideal Gas Law")
             # Get tolerance
             load_dotenv()
             delta = float(os.environ.get("delta"))
@@ -217,7 +217,7 @@ class Stagei:
             self.hlb = PropsSI("HMOLAR", "T", self.tb, "Q", 0, "Water")  # J/mol
             self.qout = ((self.a * self.c) * (self.qcond + self.hvf * self.jevap - self.hlb * self.jevap) - 2 * self.a * self.b * self.qside - 2 * self.c * self.b * self.qside) / (self.a * self.c)
         except AttributeError:
-            print("Warning: hvf and/or hlb were not found. Switching to default heat of vaporization")
+            # print("Warning: hvf and/or hlb were not found. Switching to default heat of vaporization")
             # If there was an attribute error in previous code ie. self.hvf or self.hlb not defined,
             # Set hlb = 0 and
             # Define hvf such that its value is hlb + enthalpy of vaporization
@@ -291,7 +291,7 @@ class Stage1(Stagei):
             self.jevap = (self.qin - self.qrad - self.qcond) / (self.hvf - self.hlf)  # mol/sm2
 
         except ValueError:
-            print("Warning: hvf and/or hlf were not found. Switching to default heat of vaporization")
+            # print("Warning: hvf and/or hlf were not found. Switching to default heat of vaporization")
             self.jevap = (self.qin - self.qrad - self.qcond) / hvap
 
     def solve(self):
