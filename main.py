@@ -102,6 +102,7 @@ def main():
                     results.append(simulate(param, N))
                 except:
                     print(f"error")
+                    results.append(["err", "err"])
                     continue
 
         np.savetxt(f"results(N={N}).csv", results, delimiter=",", fmt='%s')
