@@ -37,6 +37,10 @@ dwa298 = 0.000026
 # Type of heat sink. 1 for no heat sink, 2 for rectangular, 3 for pin
 htsnk = 3
 
+# Stages to Simulate
+N_start = 1
+N_end = 10
+
 
 
 # Parameters for "rectangular fin", [tf -> fin thickness(m), L -> fin length (m), n -> number of fins, ks -> conductivity of material (W/mK)]
@@ -77,7 +81,7 @@ def simulate(param, N):
     return [desalinator_setup.stages[-1].qout, qevap_tot / qsun]
 
 def main():
-    for N in range(1, 11):
+    for N in range(N_start, N_end + 1):
         print(f"Simulating N = {N} stages")
 
         results = []
