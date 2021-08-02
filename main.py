@@ -6,7 +6,7 @@ import os
 # Input Distiller Variables
 
 # q''sun in W/m2
-qsun = 1000
+qsun = 500
 
 # Tinf in K
 tinf = 298.15
@@ -36,7 +36,10 @@ dwa298 = 0.000026
 N = 10
 
 # Type of heat sink. 1 for no heat sink, 2 for rectangular, 3 for pin
-htsnk = 2
+htsnk = 3
+
+# Type guess for front wall temperature, Kelvin
+T_guess = 344
 
 # Parameters for "no heat sink". [--blank--]
 param1 = []
@@ -45,7 +48,7 @@ param1 = []
 param2 = [0.00986666667, 0.09262917809, 8, 205]
 
 # Parameters for "pin fin", [d -> fin diameter (m), L -> fin length (m), n -> number of fins on side a, , ks -> conductivity of material, m -> number of fins on side c, z -> fin spacing]
-param3 = [0.01, 0.6691, 4, 205, 4, 0.01875]
+param3 = [0.092, 0.126485446494264, 1, 205, 1, 0]
 
 if __name__ == "__main__":
 
@@ -66,7 +69,7 @@ if __name__ == "__main__":
     delta = float(os.environ.get("delta"))
 
     # Solve the setup
-    scipy.optimize.newton(desalinator_setup.solve, 350, rtol=delta)
+    scipy.optimize.newton(desalinator_setup.solve, T_guess, rtol=delta)
 
     # Print results
     print("_________________________________________")
