@@ -8,7 +8,7 @@ import numpy as np
 # Input Distiller Variables
 
 # q''sun in W/m2
-qsun = 1000
+qsun = 500
 
 # Tinf in K
 tinf = 298.15
@@ -35,14 +35,14 @@ epsilon = 0.03
 dwa298 = 0.000026
 
 # Type of heat sink. 1 for no heat sink, 2 for rectangular, 3 for pin
-htsnk = 2
+htsnk = 1
 
 # Stages to Simulate
-N_start = 10
+N_start = 1
 N_end = 10
 
 # Guess for front wall temperature in Kelvin
-T_guess = 350
+T_guess = 344
 
 # Parameters for "rectangular fin", [tf -> fin thickness(m), L -> fin length (m), n -> number of fins, ks -> conductivity of material (W/mK)]
 
