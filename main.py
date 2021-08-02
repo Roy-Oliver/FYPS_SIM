@@ -3,6 +3,7 @@ import scipy.optimize
 from dotenv import load_dotenv
 import os
 import csv
+import numpy as np
 
 # Input Distiller Variables
 
@@ -36,8 +37,7 @@ dwa298 = 0.000026
 # Type of heat sink. 1 for no heat sink, 2 for rectangular, 3 for pin
 htsnk = 2
 
-# Number of stages
-N = 10
+
 
 # Parameters for "rectangular fin", [tf -> fin thickness(m), L -> fin length (m), n -> number of fins, ks -> conductivity of material (W/mK)]
 
@@ -45,7 +45,7 @@ N = 10
 # Parameters for "pin fin", [d -> fin diameter (m), L -> fin length (m), n -> number of fins on side a, m -> number of fins on side c, z -> fin spacing (m), ks -> conductivity of material]
 
 
-def simulate(param):
+def simulate(param, N):
 
     # Build the desalinator Setup
     if htsnk == 1:
@@ -74,20 +74,33 @@ def simulate(param):
     qevap_tot = 0
     for stage_num, stage in enumerate(desalinator_setup.stages):
         qevap_tot += stage.qevap
-    print(desalinator_setup.stages[-1].qout, qevap_tot / qsun)
+    return [desalinator_setup.stages[-1].qout, qevap_tot / qsun]
 
 def main():
-    # Open parameters file
-    with open("parameters.csv") as csv_file:
-        csv_reader = csv.reader(csv_file)
+    for N in range(1, 11):
+        print(f"Simulating N = {N} stages")
 
-        # Loop Through parameters
-        for row in csv_reader:
-            # Convert data to float
-            param = list(map(float, row))
+        results = []
 
-            # Simulate
-            simulate(param)
+        # Open parameters file
+        with open("parameters.csv") as csv_file:
+            csv_reader = csv.reader(csv_file)
+
+            # Loop Through parameters
+            current_n = 1
+            for row in csv_reader:
+
+                # Convert data to float
+                param = list(map(float, row))
+
+                if param[2] != current_n:
+                    results.append(["",""])
+                    current_n = param[2]
+
+                # Simulate
+                results.append(simulate(param, N))
+
+        np.savetxt(f"results(N={N}).csv", results, delimiter=",", fmt='%s')
 
 
 main()
