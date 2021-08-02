@@ -99,4 +99,4 @@ if __name__ == "__main__":
 
         print("_________________________________________")
 
-    print(f"ntot = {qevap_tot / qsun}")
+    print(f"{desalinator_setup.stages[-1].qout} {qevap_tot / qsun}")
