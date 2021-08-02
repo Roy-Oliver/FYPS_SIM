@@ -35,7 +35,7 @@ epsilon = 0.03
 dwa298 = 0.000026
 
 # Type of heat sink. 1 for no heat sink, 2 for rectangular, 3 for pin
-htsnk = 3
+htsnk = 1
 
 # Stages to Simulate
 N_start = 1
@@ -54,7 +54,7 @@ def simulate(param, N):
 
     # Build the desalinator Setup
     if htsnk == 1:
-        param1 = param
+        param1 = []
         desalinator_setup = Distiller(qsun, tinf, t, a, b, k, epsilon, dwa298, N, htsnk, param1, c)
     elif htsnk == 2:
         param2 = param
