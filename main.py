@@ -8,7 +8,7 @@ import numpy as np
 # Input Distiller Variables
 
 # q''sun in W/m2
-qsun = 500
+qsun = 1000
 
 # Tinf in K
 tinf = 298.15
