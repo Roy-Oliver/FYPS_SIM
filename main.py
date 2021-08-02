@@ -8,7 +8,7 @@ import numpy as np
 # Input Distiller Variables
 
 # q''sun in W/m2
-qsun = 500
+qsun = 1000
 
 # Tinf in K
 tinf = 298.15
@@ -35,7 +35,7 @@ epsilon = 0.03
 dwa298 = 0.000026
 
 # Type of heat sink. 1 for no heat sink, 2 for rectangular, 3 for pin
-htsnk = 2
+htsnk = 3
 
 
 
@@ -96,9 +96,9 @@ def main():
                 if htsnk == 2 and param[2] != current_n:
                     results.append(["",""])
                     current_n = param[2]
-                if htsnk == 3 and param[2] != current_n:
+                if htsnk == 3 and (param[2] ** 2 + param[3] != current_n):
                     results.append(["",""])
-                    current_n = param[2] * param[3]
+                    current_n = param[2] ** 2 + param[3]
 
                 # Simulate
                 try:
