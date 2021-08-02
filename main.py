@@ -93,9 +93,12 @@ def main():
                 # Convert data to float
                 param = list(map(float, row))
 
-                if param[2] != current_n:
+                if htsnk == 2 and param[2] != current_n:
                     results.append(["",""])
                     current_n = param[2]
+                if htsnk == 3 and param[2] != current_n:
+                    results.append(["",""])
+                    current_n = param[2] * param[3]
 
                 # Simulate
                 try:
