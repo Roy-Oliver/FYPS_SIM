@@ -69,7 +69,7 @@ if __name__ == "__main__":
     delta = float(os.environ.get("delta"))
 
     # Solve the setup
-    scipy.optimize.newton(desalinator_setup.solve, T_guess, rtol=delta)
+    scipy.optimize.newton(desalinator_setup.solve, T_guess)
 
     # Print results
     print("_________________________________________")
