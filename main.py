@@ -8,7 +8,7 @@ import numpy as np
 # Input Distiller Variables
 
 # q''sun in W/m2
-qsun = 1000
+qsun = 500
 
 # Tinf in K
 tinf = 298.15
@@ -67,7 +67,7 @@ def simulate(param, N):
     delta = float(os.environ.get("delta"))
 
     # Solve the setup
-    scipy.optimize.newton(desalinator_setup.solve, 350, rtol=delta)
+    scipy.optimize.newton(desalinator_setup.solve, 340, rtol=delta)
 
     # Loop through results, and sum up qevap from each stage.
     # The sum of the qevap are used to compute for the total efficiency
@@ -98,7 +98,11 @@ def main():
                     current_n = param[2]
 
                 # Simulate
-                results.append(simulate(param, N))
+                try:
+                    results.append(simulate(param, N))
+                except:
+                    print(f"error")
+                    continue
 
         np.savetxt(f"results(N={N}).csv", results, delimiter=",", fmt='%s')
 
