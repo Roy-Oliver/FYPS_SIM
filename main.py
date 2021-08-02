@@ -38,11 +38,11 @@ dwa298 = 0.000026
 htsnk = 3
 
 # Stages to Simulate
-N_start = 1
+N_start = 10
 N_end = 10
 
 # Guess for front wall temperature in Kelvin
-T_guess = 340
+T_guess = 350
 
 # Parameters for "rectangular fin", [tf -> fin thickness(m), L -> fin length (m), n -> number of fins, ks -> conductivity of material (W/mK)]
 
