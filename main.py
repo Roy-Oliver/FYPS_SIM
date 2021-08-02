@@ -74,7 +74,7 @@ def simulate(param):
     qevap_tot = 0
     for stage_num, stage in enumerate(desalinator_setup.stages):
         qevap_tot += stage.qevap
-    print(desalinator_setup.stages[-1].qout, qevap_tot / qsun, )
+    print(desalinator_setup.stages[-1].qout, qevap_tot / qsun)
 
 def main():
     # Open parameters file
