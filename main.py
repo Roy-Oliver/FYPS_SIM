@@ -87,31 +87,39 @@ def main():
 
         results = []
 
-        # Open parameters file
-        with open("parameters.csv") as csv_file:
-            csv_reader = csv.reader(csv_file)
+        if htsnk != 1:
+            # Open parameters file
+            with open("parameters.csv") as csv_file:
+                csv_reader = csv.reader(csv_file)
 
-            # Loop Through parameters
-            current_n = 1
-            for row in csv_reader:
+                # Loop Through parameters
+                current_n = 1
+                for row in csv_reader:
 
-                # Convert data to float
-                param = list(map(float, row))
+                    # Convert data to float
+                    param = list(map(float, row))
 
-                if htsnk == 2 and param[2] != current_n:
-                    results.append(["",""])
-                    current_n = param[2]
-                if htsnk == 3 and (param[2] ** 2 + param[3] != current_n):
-                    results.append(["",""])
-                    current_n = param[2] ** 2 + param[3]
+                    if htsnk == 2 and param[2] != current_n:
+                        results.append(["",""])
+                        current_n = param[2]
+                    if htsnk == 3 and (param[2] ** 2 + param[3] != current_n):
+                        results.append(["",""])
+                        current_n = param[2] ** 2 + param[3]
 
-                # Simulate
-                try:
-                    results.append(simulate(param, N))
-                except:
-                    print(f"error")
-                    results.append(["err", "err"])
-                    continue
+                    # Simulate
+                    try:
+                        results.append(simulate(param, N))
+                    except:
+                        print(f"error")
+                        results.append(["err", "err"])
+                        continue
+
+        else:
+            try:
+                results.append(simulate([], N))
+            except:
+                results.append(["err", "err"])
+                continue
 
         np.savetxt(f"results(N={N}).csv", results, delimiter=",", fmt='%s')
 
