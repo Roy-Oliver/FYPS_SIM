@@ -35,14 +35,14 @@ epsilon = 0.03
 dwa298 = 0.000026
 
 # Type of heat sink. 1 for no heat sink, 2 for rectangular, 3 for pin
-htsnk = 1
+htsnk = 2
 
 # Stages to Simulate
-N_start = 1
+N_start = 10
 N_end = 10
 
 # Guess for front wall temperature in Kelvin
-T_guess = 344
+T_guess = 350
 
 # Parameters for "rectangular fin", [tf -> fin thickness(m), L -> fin length (m), n -> number of fins, ks -> conductivity of material (W/mK)]
 
@@ -72,7 +72,7 @@ def simulate(param, N):
     delta = float(os.environ.get("delta"))
 
     # Solve the setup
-    scipy.optimize.newton(desalinator_setup.solve, T_guess, rtol=delta)
+    scipy.optimize.newton(desalinator_setup.solve, T_guess)
 
     # Loop through results, and sum up qevap from each stage.
     # The sum of the qevap are used to compute for the total efficiency
